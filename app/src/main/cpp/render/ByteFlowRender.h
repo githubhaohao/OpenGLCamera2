@@ -34,13 +34,7 @@ public:
 
     virtual void SetShaderIndex(int shaderIndex) = 0;
 
-	virtual void SetMask(uint8_t *pBuffer, int width, int height, int size) = 0;
-
     virtual int GetShaderIndex() = 0;
-
-    virtual void SetGLBeginLocationX(float x) = 0;
-
-	virtual void SetGLBeginLocationY(float y) = 0;
 
     virtual bool CreateTextures() = 0;
 

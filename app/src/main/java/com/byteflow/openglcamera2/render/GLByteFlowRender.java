@@ -48,20 +48,6 @@ public class GLByteFlowRender extends ByteFlowRender implements GLSurfaceView.Re
         return native_GetParamsInt(paramType);
     }
 
-    public void setGLBeginLocX(int x) {
-        setParamsInt(PARAM_TYPE_SET_GL_BEGIN_X, x);
-    }
-
-    public void setGLBeginLocY(int y) {
-        setParamsInt(PARAM_TYPE_SET_GL_BEGIN_Y, y);
-    }
-
-    public void setMask(byte[] data, int width, int height) {
-        if (data != null) {
-            native_SetMask(data, width, height);
-        }
-    }
-
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         Log.d(TAG, "onSurfaceCreated() called with: gl = [" + gl + "], config = [" + config + "]");

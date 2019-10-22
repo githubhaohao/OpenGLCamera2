@@ -5,8 +5,6 @@ public abstract class ByteFlowRender {
     public static final int CL_RENDER_TYPE = 1;
 
     public static final int PARAM_TYPE_SET_SHADER_INDEX = 201;
-    public static final int PARAM_TYPE_SET_GL_BEGIN_X   = 202;
-    public static final int PARAM_TYPE_SET_GL_BEGIN_Y   = 203;
 
     static {
         System.loadLibrary("byteflow_render");
@@ -27,8 +25,6 @@ public abstract class ByteFlowRender {
     protected native void native_SetTransformMatrix(float translateX, float translateY, float scaleX, float scaleY, int degree, int mirror);
 
     protected native void native_SetParamsInt(int paramType, int value);
-
-    protected native void native_SetMask(byte[] data, int width, int height);
 
     protected native int native_GetParamsInt(int paramType);
 

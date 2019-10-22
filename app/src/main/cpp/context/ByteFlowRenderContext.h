@@ -14,9 +14,6 @@
 #define CL_RENDER_TYPE   1
 
 #define PARAM_TYPE_SET_SHADER_INDEX   201
-#define PARAM_TYPE_SET_GL_X_LOCATION  202
-#define PARAM_TYPE_SET_GL_Y_LOCATION  203
-
 
 class ByteFlowRenderContext
 {
@@ -42,8 +39,6 @@ public:
 	void SetTransformMatrix(float translateX, float translateY, float scaleX, float scaleY, int degree, int mirror);
 
 	void SetParamsInt(int paramType, int param);
-
-	void SetMask(uint8_t *pBuffer, int width, int height, int size);
 
 	int GetParamsInt(int paramType);
 

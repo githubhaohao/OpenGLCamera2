@@ -56,13 +56,7 @@ public:
 
 	virtual void SetShaderIndex(int shaderIndex);
 
-	virtual void SetGLBeginLocationX(float x);
-
-	virtual void SetGLBeginLocationY(float y);
-
 	virtual int GetShaderIndex();
-
-	virtual void SetMask(uint8_t *pBuffer, int width, int height, int size);
 
 	virtual bool CreateTextures();
 
@@ -80,15 +74,7 @@ public:
 
 	void UpdateMVPMatrix(glm::mat4 &mat4Matrix, TransformMatrix &transformMatrix);
 
-	void FeedCoordinates(int width, int height);
-
-	void ClearCoordinates();
-
 	GLuint UseProgram();
-
-	static void *StartThread(void *args);
-
-	void AsyncRun();
 
 private:
 	glm::mat4 m_MVPMatrix;
@@ -112,24 +98,10 @@ private:
 	GLint m_TextureSizeHandle;
 	GLint m_MVPHandle;
 
-	GLint m_GLBeginXHandle;
-	GLint m_GLBeginYHandle;
-
-	float m_GLBeginX;
-	float m_GLBeginY;
-
 	std::vector<const char *> m_FragShaders;
 	int m_ShaderIndex;
 	volatile bool m_IsShaderChanged;
 
-	ByteFlowMask m_ByteFlowMask;
-	ByteFlowCoordinate m_VertexCoors;
-	ByteFlowCoordinate m_FragCoors;
-
-	float m_StartAngle;
-	GLint m_StartAngleHandle;
-	volatile bool m_ThreadExit;
-	pthread_t m_threadId;
 };
 
 

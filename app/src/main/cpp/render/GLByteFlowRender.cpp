@@ -40,17 +40,11 @@ GLByteFlowRender::GLByteFlowRender() :
 		m_TextureSizeHandle(0),
 		m_MVPHandle(0),
 		m_MVPMatrix(1.0f),
-		m_ShaderIndex(0),
-		m_GLBeginX(0.f),
-		m_GLBeginY(0.f),
-		m_StartAngle(0.f),
-		m_StartAngleHandle(0)
+		m_ShaderIndex(0)
 {
 	LOGCATE("GLByteFlowRender::GLByteFlowRender");
 	m_IsProgramChanged = true;
 	m_IsProgramChanged = false;
-
-	m_ThreadExit = false;
 }
 
 GLByteFlowRender::~GLByteFlowRender()
@@ -75,8 +69,6 @@ int GLByteFlowRender::Init(int initType)
 	m_FragShaders.push_back(kFragmentShader10);
 	m_FragShaders.push_back(kFragmentShader11);
 	m_FragShaders.push_back(kFragmentShader12);
-
-	pthread_create(&m_threadId, NULL, StartThread, this);
 	return 0;
 }
 
@@ -87,10 +79,6 @@ int GLByteFlowRender::UnInit()
 	//DeleteTextures();
 	//GLUtils::DeleteProgram(m_Program);
 	m_FragShaders.clear();
-	ClearCoordinates();
-
-	m_ThreadExit = true;
-	pthread_join(m_threadId, NULL);
 
 	return 0;
 }
@@ -248,12 +236,6 @@ bool GLByteFlowRender::UpdateTextures()
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, (GLsizei)m_RenderBufFrame.width >> 1, (GLsizei)m_RenderBufFrame.height >> 1, 0,
 				 GL_LUMINANCE, GL_UNSIGNED_BYTE, m_RenderBufFrame.pVPlane);
 
-	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, m_MaskTextureId);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, static_cast<GLsizei>(m_ByteFlowMask.width),
-				 static_cast<GLsizei>(m_ByteFlowMask.height), 0,
-				 GL_RGBA, GL_UNSIGNED_BYTE, m_ByteFlowMask.pMaskPlane);
-
 	return true;
 }
 
@@ -306,8 +288,6 @@ void GLByteFlowRender::OnSurfaceChanged(int width, int height)
 	LOGCATE("GLByteFlowRender::OnSurfaceChanged [w, h] = [%d, %d]", width, height);
 	m_ViewportWidth = width;
 	m_ViewportHeight = height;
-	ClearCoordinates();
-	FeedCoordinates(width, height);
 	m_IsProgramChanged = true;
 }
 
@@ -429,21 +409,6 @@ GLuint GLByteFlowRender::UseProgram()
 		m_IsProgramChanged = false;
 	}
 
-	if (m_GLBeginXHandle > 0)
-	{
-		glUniform1f(m_GLBeginXHandle, m_GLBeginX);
-	}
-
-	if (m_GLBeginYHandle > 0)
-	{
-		glUniform1f(m_GLBeginYHandle, m_GLBeginY);
-	}
-
-	if (m_StartAngleHandle > 0)
-	{
-		glUniform1f(m_StartAngleHandle, m_StartAngle);
-	}
-
 	return m_Program;
 }
 
@@ -458,9 +423,6 @@ int GLByteFlowRender::CreateProgram(const char *pVertexShaderSource, const char 
 		return 0;
 	}
 
-	m_GLBeginYHandle = glGetUniformLocation(m_Program, "glBeginX");
-	m_GLBeginXHandle = glGetUniformLocation(m_Program, "glBeginY");
-
 	m_YTextureHandle = glGetUniformLocation(m_Program, "s_textureY");
 	m_UTextureHandle = glGetUniformLocation(m_Program, "s_textureU");
 	m_VTextureHandle = glGetUniformLocation(m_Program, "s_textureV");
@@ -471,181 +433,5 @@ int GLByteFlowRender::CreateProgram(const char *pVertexShaderSource, const char 
 	m_TextureCoorHandle = (GLuint) glGetAttribLocation(m_Program, "texcoord");
 	m_MVPHandle = glGetUniformLocation(m_Program, "MVP");
 
-	m_StartAngleHandle = glGetUniformLocation(m_Program, "startAngle");
-
 	return m_Program;
-}
-
-void GLByteFlowRender::SetGLBeginLocationX(float x)
-{
-	LOGCATE("GLByteFlowRender::SetGLBeginLocationX x = %f", x);
-	m_GLBeginX = x;
-
-}
-
-void GLByteFlowRender::SetGLBeginLocationY(float y)
-{
-	LOGCATE("GLByteFlowRender::SetGLBeginLocationY y = %f", y);
-	m_GLBeginY = y;
-
-}
-
-void GLByteFlowRender::SetMask(uint8_t *pBuffer, int width, int height, int size)
-{
-	LOGCATE("GLByteFlowRender::SetMask pBuffer=%p, width=%d, height=%d, size=%d", pBuffer, width, height, size);
-	m_ByteFlowMask.width = static_cast<size_t>(width);
-	m_ByteFlowMask.height = static_cast<size_t>(height);
-	m_ByteFlowMask.pMaskPlane = static_cast<uint8_t *>(malloc(size));
-	memcpy(m_ByteFlowMask.pMaskPlane, pBuffer, size);
-}
-
-void GLByteFlowRender::FeedCoordinates(int width, int height)
-{
-	LOGCATE("GLByteFlowRender::FeedCoordinates [w, h] = [%d, %d]", width, height);
-	int cols = width / 20;
-	int rows = height / 20;
-
-	float frag_w_span = 1.f / cols;
-	float frag_h_span = 1.f / rows;
-
-	float vertex_w_span = 2 * frag_w_span;
-	float vertex_h_span = 2 * frag_h_span;
-
-	m_FragCoors.nCoorsCount = cols * rows * 6;
-	m_VertexCoors.nCoorsCount = cols * rows * 6;
-
-	m_FragCoors.pCoordiantes = static_cast<float *>(malloc(m_FragCoors.nCoorsCount * 2 * sizeof(float)));
-	m_VertexCoors.pCoordiantes = static_cast<float *>(malloc(m_VertexCoors.nCoorsCount * 3 * sizeof(float)));
-
-	int fIndex = 0;
-	int vIndex = 0;
-	for (int i = 0; i < rows; ++i)
-	{
-		for (int j = 0;j < cols; j++)
-		{
-			float x0 = j * vertex_w_span;
-			float y0 = 2 - i * vertex_h_span;
-
-			float x1 = x0;
-			float y1 = 2 - (i + 1) * vertex_h_span;
-
-			float x2 = (j + 1) * vertex_w_span;
-			float y2 = y1;
-
-			float x3 = x2;
-			float y3 = y0;
-
-			x0 -=1;
-			x1 -=1;
-			x2 -=1;
-			x3 -=1;
-
-			y0 -=1;
-			y1 -=1;
-			y2 -=1;
-			y3 -=1;
-
-			m_VertexCoors.pCoordiantes[vIndex]     = x0;
-			m_VertexCoors.pCoordiantes[vIndex + 1] = y0;
-			m_VertexCoors.pCoordiantes[vIndex + 2] = 0.f;
-
-			LOGCATE("GLByteFlowRender::FeedCoordinates vertex[x0, y0] = [%f, %f]", x0, y0);
-
-			m_VertexCoors.pCoordiantes[vIndex + 3] = x1;
-			m_VertexCoors.pCoordiantes[vIndex + 4] = y1;
-			m_VertexCoors.pCoordiantes[vIndex + 5] = 0.f;
-
-			m_VertexCoors.pCoordiantes[vIndex + 6] = x2;
-			m_VertexCoors.pCoordiantes[vIndex + 7] = y2;
-			m_VertexCoors.pCoordiantes[vIndex + 8] = 0.f;
-
-			m_VertexCoors.pCoordiantes[vIndex + 9]  = x0;
-			m_VertexCoors.pCoordiantes[vIndex + 10] = y0;
-			m_VertexCoors.pCoordiantes[vIndex + 11] = 0.f;
-
-			m_VertexCoors.pCoordiantes[vIndex + 12] = x2;
-			m_VertexCoors.pCoordiantes[vIndex + 13] = y2;
-			m_VertexCoors.pCoordiantes[vIndex + 14] = 0.f;
-
-			m_VertexCoors.pCoordiantes[vIndex + 15] = x3;
-			m_VertexCoors.pCoordiantes[vIndex + 16] = y3;
-			m_VertexCoors.pCoordiantes[vIndex + 17] = 0.f;
-
-			x0 = j * frag_w_span;
-			y0 = i * frag_h_span;
-
-			x1 = x0;
-			y1 = (i + 1) * frag_h_span;
-
-			x2 = (j + 1)* frag_w_span;
-			y2 = y1;
-
-			x3 = x2;
-			y3 = y0;
-
-			m_FragCoors.pCoordiantes[fIndex]     = x0;
-			m_FragCoors.pCoordiantes[fIndex + 1] = y0;
-
-			LOGCATE("GLByteFlowRender::FeedCoordinates frag[x0, y0] = [%f, %f]", x0, y0);
-
-			m_FragCoors.pCoordiantes[fIndex + 2] = x1;
-			m_FragCoors.pCoordiantes[fIndex + 3] = y1;
-
-			m_FragCoors.pCoordiantes[fIndex + 4] = x2;
-			m_FragCoors.pCoordiantes[fIndex + 5] = y2;
-
-			m_FragCoors.pCoordiantes[fIndex + 6] = x0;
-			m_FragCoors.pCoordiantes[fIndex + 7] = y0;
-
-			m_FragCoors.pCoordiantes[fIndex + 8] = x2;
-			m_FragCoors.pCoordiantes[fIndex + 9] = y2;
-
-			m_FragCoors.pCoordiantes[fIndex + 10] = x3;
-			m_FragCoors.pCoordiantes[fIndex + 11] = y3;
-
-			fIndex += 12; // 6 points x  2
-			vIndex += 18; //
-
-		}
-
-	}
-
-}
-
-void GLByteFlowRender::ClearCoordinates()
-{
-	if (m_VertexCoors.pCoordiantes)
-	{
-		free(m_VertexCoors.pCoordiantes);
-		m_VertexCoors.pCoordiantes = NULL;
-		m_VertexCoors.nCoorsCount = 0;
-	}
-
-	if (m_FragCoors.pCoordiantes)
-	{
-		free(m_FragCoors.pCoordiantes);
-		m_FragCoors.pCoordiantes = NULL;
-		m_FragCoors.nCoorsCount = 0;
-	}
-
-}
-
-void *GLByteFlowRender::StartThread(void *args)
-{
-	LOGCATE("GLByteFlowRender::StartThread");
-	GLByteFlowRender *pRender = static_cast<GLByteFlowRender *>(args);
-	pRender->AsyncRun();
-	return nullptr;
-}
-
-void GLByteFlowRender::AsyncRun()
-{
-	LOGCATE("GLByteFlowRender::AsyncRun");
-	for (;;)
-	{
-		if (m_ThreadExit)
-			break;
-		m_StartAngle += (float) (MATH_PI/16);
-		usleep(50 * 1000);
-	}
 }

@@ -1,34 +1,16 @@
 #ifndef _BYTE_FLOW_GL_SHADER_H_
 #define _BYTE_FLOW_GL_SHADER_H_
 
-//static const char kVertexShader[] =
-//		"#version 100\n\
-//    varying vec2 v_texcoord; \
-//    attribute vec4 position; \
-//    attribute vec2 texcoord; \
-//    uniform mat4 MVP; \
-//    uniform float startAngle;\
-//    void main() { \
-//        float angleSpan = 4.0 * 3.141592653;\
-//        float curAngle = startAngle + ((position.x + 1.0)/2.0)*angleSpan;\
-//        float tz = sin(curAngle)* 0.1;\
-//        v_texcoord = texcoord; \
-//        gl_Position = MVP*position;//gl_Position = MVP * vec4(position.x, position.y, tz, 1.0);\
-//    }";
-
-static const char kVertexShader[] = "#version 100\n"
-									"varying vec2 v_texcoord;\n"
-									"attribute vec4 position;\n"
-									"attribute vec2 texcoord;\n"
-									"uniform mat4 MVP;\n"
-									"uniform float startAngle;\n"
-									"void main() {\n"
-									"    float angleSpan = 4.0 * 3.141592653;\n"
-									"    float curAngle = startAngle + ((position.x + 1.0)/2.0)*angleSpan;\n"
-									"    float tz = sin(curAngle)* 0.1;\n"
-									"    v_texcoord = texcoord;\n"
-									"    gl_Position = MVP*position;\n"
-									"}";
+static const char kVertexShader[] =
+		"#version 100\n"
+		"varying vec2 v_texcoord;\n"
+		"attribute vec4 position;\n"
+		"attribute vec2 texcoord;\n"
+		"uniform mat4 MVP;\n"
+		"void main() {\n"
+		"    v_texcoord = texcoord;\n"
+		"    gl_Position = MVP*position;\n"
+		"}";
 
 //gl_Position = MVP * position;
 // Pixel shader, YUV420 to RGB conversion.
@@ -39,26 +21,17 @@ static const char kFragmentShader[] =
     uniform lowp sampler2D s_textureY;\
     uniform lowp sampler2D s_textureU;\
     uniform lowp sampler2D s_textureV;\
-    uniform lowp sampler2D s_textureMask;\
     void main() {\
         float y, u, v, r, g, b;\
-        vec4 judColor = texture2D(s_textureMask, v_texcoord);\
-        if(judColor.a < 0.6)\
-        {\
-            y = texture2D(s_textureY, v_texcoord).r;\
-            u = texture2D(s_textureU, v_texcoord).r;\
-            v = texture2D(s_textureV, v_texcoord).r;\
-            u = u - 0.5;\
-            v = v - 0.5;\
-            r = y + 1.403 * v;\
-            g = y - 0.344 * u - 0.714 * v;\
-            b = y + 1.770 * u;\
-            gl_FragColor = vec4(r, g, b, 1.0);\
-        }\
-        else\
-        {\
-            gl_FragColor = judColor;\
-        }\
+        y = texture2D(s_textureY, v_texcoord).r;\
+        u = texture2D(s_textureU, v_texcoord).r;\
+        v = texture2D(s_textureV, v_texcoord).r;\
+        u = u - 0.5;\
+        v = v - 0.5;\
+        r = y + 1.403 * v;\
+        g = y - 0.344 * u - 0.714 * v;\
+        b = y + 1.770 * u;\
+        gl_FragColor = vec4(r, g, b, 1.0);\
     }";
 
 // Blur Filter
@@ -69,8 +42,6 @@ static const char kFragmentShader1[] =
     uniform lowp sampler2D s_textureY;\
     uniform lowp sampler2D s_textureU;\
     uniform lowp sampler2D s_textureV;\
-    uniform float glBeginY;\
-    uniform float glBeginX;\
     vec4 YuvToRgb(vec2 uv) {\
         float y, u, v, r, g, b;\
         y = texture2D(s_textureY, uv).r;\
@@ -84,21 +55,14 @@ static const char kFragmentShader1[] =
         return vec4(r, g, b, 1.0);\
     }\
     void main() {\
-        if(v_texcoord.y < glBeginY || v_texcoord.x < glBeginX)\
-        {\
-            gl_FragColor = YuvToRgb(v_texcoord);\
-        } \
-        else\
-        {\
-            vec4 sample0, sample1, sample2, sample3;\
-            float blurStep = 0.5;\
-            float step = blurStep / 100.0;\
-            sample0 = YuvToRgb(vec2(v_texcoord.x - step, v_texcoord.y - step));\
-            sample1 = YuvToRgb(vec2(v_texcoord.x + step, v_texcoord.y + step));\
-            sample2 = YuvToRgb(vec2(v_texcoord.x + step, v_texcoord.y - step));\
-            sample3 = YuvToRgb(vec2(v_texcoord.x - step, v_texcoord.y + step));\
-            gl_FragColor = (sample0 + sample1 + sample2 + sample3) / 4.0;\
-        }   \
+    	vec4 sample0, sample1, sample2, sample3;\
+    	float blurStep = 0.5;\
+    	float step = blurStep / 100.0;\
+    	sample0 = YuvToRgb(vec2(v_texcoord.x - step, v_texcoord.y - step));\
+    	sample1 = YuvToRgb(vec2(v_texcoord.x + step, v_texcoord.y + step));\
+    	sample2 = YuvToRgb(vec2(v_texcoord.x + step, v_texcoord.y - step));\
+    	sample3 = YuvToRgb(vec2(v_texcoord.x - step, v_texcoord.y + step));\
+    	gl_FragColor = (sample0 + sample1 + sample2 + sample3) / 4.0;\
     }";
 
 // Swirl Filter

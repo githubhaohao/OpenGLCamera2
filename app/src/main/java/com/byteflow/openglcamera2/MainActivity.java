@@ -79,30 +79,6 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
 
         mByteFlowRender.init(mGLSurfaceView);
 
-        InputStream is = this.getResources().openRawResource(R.drawable.mask);
-        Bitmap bitmap;
-        try {
-            bitmap = BitmapFactory.decodeStream(is);
-            if (bitmap != null) {
-                int bytes = bitmap.getByteCount();
-                ByteBuffer buf = ByteBuffer.allocate(bytes);
-                bitmap.copyPixelsToBuffer(buf);
-                byte[] byteArray = buf.array();
-                mByteFlowRender.setMask(byteArray, bitmap.getWidth(), bitmap.getHeight());
-            }
-        }
-        finally
-        {
-            try
-            {
-                is.close();
-            }
-            catch(IOException e)
-            {
-                e.printStackTrace();
-            }
-        }
-
         mCamera2Wrapper = new Camera2Wrapper(this);
 
     }

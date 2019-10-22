@@ -88,23 +88,6 @@ JNIEXPORT void JNICALL native_SetParamsInt(JNIEnv *env, jobject instance, jint p
 
 /*
  * Class:     com_byteflow_openglcamera2_render_ByteFlowRender
- * Method:    native_SetMask
- * Signature: ([BII)V
- */
-JNIEXPORT void JNICALL native_SetMask(JNIEnv *env, jobject instance, jbyteArray bytes, jint width, jint height)
-{
-	int len = env->GetArrayLength (bytes);
-	unsigned char* buf = new unsigned char[len];
-	env->GetByteArrayRegion(bytes, 0, len, reinterpret_cast<jbyte*>(buf));
-
-	ByteFlowRenderContext *pContext = ByteFlowRenderContext::GetRenderContext(env, instance);
-	if(pContext) pContext->SetMask(buf, width, height, len);
-
-	delete[] buf;
-}
-
-/*
- * Class:     com_byteflow_openglcamera2_render_ByteFlowRender
  * Method:    native_GetParamsInt
  * Signature: (I)I
  */
@@ -164,7 +147,6 @@ static JNINativeMethod g_RenderMethods[] = {
 		{"native_OnSurfaceCreated",   "()V",       (void *)(native_OnSurfaceCreated)},
 		{"native_OnSurfaceChanged",   "(II)V",     (void *)(native_OnSurfaceChanged)},
 		{"native_OnDrawFrame",        "()V",       (void *)(native_OnDrawFrame)},
-		{"native_SetMask",            "([BII)V",   (void *)(native_SetMask)},
 };
 
 static int RegisterNativeMethods(JNIEnv *env, const char *className, JNINativeMethod *methods, int methodNum)

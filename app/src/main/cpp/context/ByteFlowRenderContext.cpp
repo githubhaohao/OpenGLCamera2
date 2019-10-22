@@ -124,12 +124,6 @@ void ByteFlowRenderContext::SetParamsInt(int paramType, int param)
 		case PARAM_TYPE_SET_SHADER_INDEX:
 			m_pByteFlowRender->SetShaderIndex(param);
 			break;
-		case PARAM_TYPE_SET_GL_X_LOCATION:
-			m_pByteFlowRender->SetGLBeginLocationX(param / 100.f);
-			break;
-		case PARAM_TYPE_SET_GL_Y_LOCATION:
-			m_pByteFlowRender->SetGLBeginLocationY(param / 100.f);
-			break;
 		default:
 			break;
 	}
@@ -164,9 +158,5 @@ void ByteFlowRenderContext::OnDrawFrame()
 	m_pByteFlowRender->OnDrawFrame();
 }
 
-void ByteFlowRenderContext::SetMask(uint8_t *pBuffer, int width, int height, int size)
-{
-	m_pByteFlowRender->SetMask(pBuffer, width, height, size);
-}
 
 

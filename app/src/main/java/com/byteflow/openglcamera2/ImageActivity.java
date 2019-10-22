@@ -18,7 +18,6 @@ public class ImageActivity extends BaseRenderActivity {
     private static final String TAG = "ImageActivity";
     private RelativeLayout mSurfaceViewRoot;
     private ByteFlowFrame mByteFlowFrame;
-    private SeekBar mSeekBar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -26,31 +25,12 @@ public class ImageActivity extends BaseRenderActivity {
         setContentView(R.layout.activity_image);
 
         mSurfaceViewRoot = findViewById(R.id.surface_root);
-        mSeekBar = findViewById(R.id.seek_bar);
 
         RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.MATCH_PARENT);
         mSurfaceViewRoot.addView(mGLSurfaceView, p);
 
         mByteFlowRender.init(mGLSurfaceView);
-
-        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                mByteFlowRender.setGLBeginLocX(progress);
-                mByteFlowRender.requestRender();
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
 
         String path = getIntent().getStringExtra("img_path");
         String camera_id = getIntent().getStringExtra("img_ort");
