@@ -12,9 +12,8 @@ static const char kVertexShader[] =
 		"    gl_Position = MVP*position;\n"
 		"}";
 
-//gl_Position = MVP * position;
 // Pixel shader, YUV420 to RGB conversion.
-static const char kFragmentShader[] =
+static const char kFragmentShader0[] =
     "#version 100\n \
     precision highp float; \
     varying vec2 v_texcoord;\
@@ -610,4 +609,55 @@ static const char kFragmentShader12[] =
         gl_FragColor = vec4(color.rgb, 1.0);\
     }";
 
+//分屏
+static const char kFragmentShader13[] =
+		"#version 100\n"
+		"precision highp float;\n"
+		"varying vec2 v_texcoord;\n"
+		"uniform lowp sampler2D s_textureY;\n"
+		"uniform lowp sampler2D s_textureU;\n"
+		"uniform lowp sampler2D s_textureV;\n"
+		"uniform vec2 texSize;\n"
+		"vec4 YuvToRgb(vec2 uv) {\n"
+		"    float y, u, v, r, g, b;\n"
+		"    y = texture2D(s_textureY, uv).r;\n"
+		"    u = texture2D(s_textureU, uv).r;\n"
+		"    v = texture2D(s_textureV, uv).r;\n"
+		"    u = u - 0.5;\n"
+		"    v = v - 0.5;\n"
+		"    r = y + 1.403 * v;\n"
+		"    g = y - 0.344 * u - 0.714 * v;\n"
+		"    b = y + 1.770 * u;\n"
+		"    return vec4(r, g, b, 1.0);\n"
+		"}\n"
+		"void main() {\n"
+		"    float newY, newX;\n"
+		"    if(v_texcoord.y <= 1.0/3.0)\n"
+		"    {\n"
+		"        newY = v_texcoord.y + 1.0/3.0;\n"
+		"    }\n"
+		"    else if(1.0/3.0 <= v_texcoord.y && v_texcoord.y <= 2.0/3.0)\n"
+		"    {\n"
+		"        newY = v_texcoord.y;\n"
+		"    }\n"
+		"    else\n"
+		"    {\n"
+		"        newY = v_texcoord.y - 1.0/3.0;\n"
+		"    }\n"
+		"\n"
+		"    if(v_texcoord.x <= 1.0/3.0)\n"
+		"    {\n"
+		"        newX = v_texcoord.x + 1.0/3.0;\n"
+		"    }\n"
+		"    else if(1.0/3.0 <= v_texcoord.x && v_texcoord.x <= 2.0/3.0)\n"
+		"    {\n"
+		"        newX = v_texcoord.x;\n"
+		"    }\n"
+		"    else\n"
+		"    {\n"
+		"        newX = v_texcoord.x - 1.0/3.0;\n"
+		"    }\n"
+		"\n"
+		"    gl_FragColor = YuvToRgb(vec2(newX, newY));\n"
+		"}";
 #endif //_BYTE_FLOW_GL_SHADER_H_

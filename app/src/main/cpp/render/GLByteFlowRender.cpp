@@ -56,7 +56,7 @@ GLByteFlowRender::~GLByteFlowRender()
 int GLByteFlowRender::Init(int initType)
 {
 	LOGCATE("GLByteFlowRender::Init");
-	m_FragShaders.push_back(kFragmentShader);
+	m_FragShaders.push_back(kFragmentShader0);
 	m_FragShaders.push_back(kFragmentShader1);
 	m_FragShaders.push_back(kFragmentShader2);
 	m_FragShaders.push_back(kFragmentShader3);
@@ -69,6 +69,7 @@ int GLByteFlowRender::Init(int initType)
 	m_FragShaders.push_back(kFragmentShader10);
 	m_FragShaders.push_back(kFragmentShader11);
 	m_FragShaders.push_back(kFragmentShader12);
+	m_FragShaders.push_back(kFragmentShader13);
 	return 0;
 }
 
@@ -196,14 +197,6 @@ bool GLByteFlowRender::CreateTextures()
 		GLUtils::CheckGLError("Create V texture");
 		return false;
 	}
-
-	glActiveTexture(GL_TEXTURE3);
-	glGenTextures(1, &m_MaskTextureId);
-	glBindTexture(GL_TEXTURE_2D, m_MaskTextureId);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	return true;
 }
@@ -395,7 +388,6 @@ GLuint GLByteFlowRender::UseProgram()
 		glUniform1i(m_YTextureHandle, 0);
 		glUniform1i(m_UTextureHandle, 1);
 		glUniform1i(m_VTextureHandle, 2);
-		glUniform1i(m_MaskTextureHandle, 3);
 		glVertexAttribPointer(m_TextureCoorHandle, 2, GL_FLOAT, GL_FALSE, 2*4, TEXTURE_COORS);
 		glEnableVertexAttribArray(m_TextureCoorHandle);
 
@@ -426,7 +418,6 @@ int GLByteFlowRender::CreateProgram(const char *pVertexShaderSource, const char 
 	m_YTextureHandle = glGetUniformLocation(m_Program, "s_textureY");
 	m_UTextureHandle = glGetUniformLocation(m_Program, "s_textureU");
 	m_VTextureHandle = glGetUniformLocation(m_Program, "s_textureV");
-	m_MaskTextureHandle = glGetUniformLocation(m_Program, "s_textureMask");
 
 	m_TextureSizeHandle = glGetUniformLocation(m_Program, "texSize");
 	m_VertexCoorHandle = (GLuint) glGetAttribLocation(m_Program, "position");

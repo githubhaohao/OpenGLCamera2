@@ -71,14 +71,14 @@ public class ImageActivity extends BaseRenderActivity {
                 break;
             case SWIPE_RIGHT:
                 mCurrentShaderIndex++;
-                mCurrentShaderIndex = mCurrentShaderIndex % 13;
+                mCurrentShaderIndex = mCurrentShaderIndex % SHADER_NUM;
                 mByteFlowRender.setParamsInt(PARAM_TYPE_SET_SHADER_INDEX, mCurrentShaderIndex);
                 mByteFlowRender.requestRender();
                 break;
             case SWIPE_LEFT:
                 mCurrentShaderIndex--;
                 if (mCurrentShaderIndex < 0) {
-                    mCurrentShaderIndex += 13;
+                    mCurrentShaderIndex += SHADER_NUM;
                 }
                 mByteFlowRender.setParamsInt(PARAM_TYPE_SET_SHADER_INDEX, mCurrentShaderIndex);
                 mByteFlowRender.requestRender();

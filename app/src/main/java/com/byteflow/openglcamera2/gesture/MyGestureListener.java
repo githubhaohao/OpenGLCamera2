@@ -28,10 +28,10 @@ public class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
         if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-            mGestureListener.onSwipe(SwipeDirection.SWIPE_LEFT);
+            mGestureListener.onSwipe(SwipeDirection.SWIPE_RIGHT);
             return true;
         } else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-            mGestureListener.onSwipe(SwipeDirection.SWIPE_RIGHT);
+            mGestureListener.onSwipe(SwipeDirection.SWIPE_LEFT);
             return true;
         }
 

@@ -82,7 +82,6 @@ private:
 	GLuint m_YTextureId;
 	GLuint m_UTextureId;
 	GLuint m_VTextureId;
-	GLuint m_MaskTextureId;
 
 	GLuint m_Program;
 	GLuint m_VertexShader;
@@ -93,7 +92,6 @@ private:
 	GLint m_YTextureHandle;
 	GLint m_UTextureHandle;
 	GLint m_VTextureHandle;
-	GLint m_MaskTextureHandle;
 
 	GLint m_TextureSizeHandle;
 	GLint m_MVPHandle;

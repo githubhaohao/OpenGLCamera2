@@ -18,7 +18,7 @@ import com.byteflow.openglcamera2.render.GLByteFlowRender;
 
 public abstract class BaseRenderActivity extends AppCompatActivity implements MyGestureListener.SimpleGestureListener {
     private static final String TAG = "BaseRenderActivity";
-
+    protected static final int SHADER_NUM = 14;
     protected GLByteFlowRender mByteFlowRender;
     protected GLSurfaceView mGLSurfaceView;
     protected MyGestureListener mGestureDetector;
