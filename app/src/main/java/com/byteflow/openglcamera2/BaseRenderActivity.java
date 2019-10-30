@@ -18,11 +18,12 @@ import com.byteflow.openglcamera2.render.GLByteFlowRender;
 
 public abstract class BaseRenderActivity extends AppCompatActivity implements MyGestureListener.SimpleGestureListener {
     private static final String TAG = "BaseRenderActivity";
-    protected static final int SHADER_NUM = 14;
+    protected static final int SHADER_NUM = 19;
     protected GLByteFlowRender mByteFlowRender;
     protected GLSurfaceView mGLSurfaceView;
     protected MyGestureListener mGestureDetector;
     protected int mCurrentShaderIndex = 0;
+    protected Size mRootViewSize;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -69,9 +70,14 @@ public abstract class BaseRenderActivity extends AppCompatActivity implements My
     }
 
     public void updateGLSurfaceViewSize(Size previewSize) {
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        Size fitSize = CameraUtil.getFitInScreenSize(previewSize.getWidth(), previewSize.getHeight(),displayMetrics.widthPixels, displayMetrics.heightPixels);
+        Size fitSize = null;
+        if (mRootViewSize == null) {
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            fitSize = CameraUtil.getFitInScreenSize(previewSize.getWidth(), previewSize.getHeight(), displayMetrics.widthPixels, displayMetrics.heightPixels);
+        } else {
+            fitSize = CameraUtil.getFitInScreenSize(previewSize.getWidth(), previewSize.getHeight(), mRootViewSize.getWidth(), mRootViewSize.getHeight());
+        }
 
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mGLSurfaceView
                 .getLayoutParams();

@@ -9,6 +9,12 @@
 #include "GLUtils.h"
 #include "GLShaders.h"
 
+const float DRIFT_SEQ[9] = {0.0f, 0.03f, 0.032f, 0.035f, 0.03f, 0.032f, 0.031f, 0.029f, 0.025f};
+//偏移的x值
+const float JITTER_SEQ[9] = {0.0f, 0.03f, 0.01f, 0.02f, 0.05f, 0.055f, 0.03f, 0.02f, 0.025f};
+//偏移的y值
+const float THRESHHOLD_SEQ[9] = {1.0f, 0.965f, 0.9f, 0.9f, 0.9f, 0.6f, 0.8f, 0.5f, 0.5f};
+
 static const float VERTICES_COORS[] =
 		{
 				-1.f, 1.f,
@@ -38,9 +44,11 @@ GLByteFlowRender::GLByteFlowRender() :
 		m_UTextureHandle(0),
 		m_VTextureHandle(0),
 		m_TextureSizeHandle(0),
+		m_OffsetHandle(0),
 		m_MVPHandle(0),
 		m_MVPMatrix(1.0f),
-		m_ShaderIndex(0)
+		m_ShaderIndex(0),
+		m_FrameIndex(0)
 {
 	LOGCATE("GLByteFlowRender::GLByteFlowRender");
 	m_IsProgramChanged = true;
@@ -70,6 +78,11 @@ int GLByteFlowRender::Init(int initType)
 	m_FragShaders.push_back(kFragmentShader11);
 	m_FragShaders.push_back(kFragmentShader12);
 	m_FragShaders.push_back(kFragmentShader13);
+	m_FragShaders.push_back(kFragmentShader14);
+	m_FragShaders.push_back(kFragmentShader15);
+	m_FragShaders.push_back(kFragmentShader16);
+	m_FragShaders.push_back(kFragmentShader17);
+	m_FragShaders.push_back(kFragmentShader18);
 	return 0;
 }
 
@@ -216,17 +229,20 @@ bool GLByteFlowRender::UpdateTextures()
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_YTextureId);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, (GLsizei)m_RenderBufFrame.width, (GLsizei)m_RenderBufFrame.height, 0,
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, (GLsizei) m_RenderBufFrame.width,
+				 (GLsizei) m_RenderBufFrame.height, 0,
 				 GL_LUMINANCE, GL_UNSIGNED_BYTE, m_RenderBufFrame.pYPlane);
 
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, m_UTextureId);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, (GLsizei)m_RenderBufFrame.width >> 1, (GLsizei)m_RenderBufFrame.height >> 1, 0,
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, (GLsizei) m_RenderBufFrame.width >> 1,
+				 (GLsizei) m_RenderBufFrame.height >> 1, 0,
 				 GL_LUMINANCE, GL_UNSIGNED_BYTE, m_RenderBufFrame.pUPlane);
 
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, m_VTextureId);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, (GLsizei)m_RenderBufFrame.width >> 1, (GLsizei)m_RenderBufFrame.height >> 1, 0,
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, (GLsizei) m_RenderBufFrame.width >> 1,
+				 (GLsizei) m_RenderBufFrame.height >> 1, 0,
 				 GL_LUMINANCE, GL_UNSIGNED_BYTE, m_RenderBufFrame.pVPlane);
 
 	return true;
@@ -270,7 +286,7 @@ void GLByteFlowRender::OnSurfaceCreated()
 	int nMaxTextureSize = 0;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &nMaxTextureSize);
 	LOGCATE("GLByteFlowRender::OnSurfaceCreated GL_MAX_TEXTURE_SIZE = %d", nMaxTextureSize);
-	if(!CreateProgram(kVertexShader, m_FragShaders.at(m_ShaderIndex)))
+	if (!CreateProgram(kVertexShader, m_FragShaders.at(m_ShaderIndex)))
 	{
 		LOGCATE("GLByteFlowRender::OnSurfaceCreated create program fail.");
 	}
@@ -298,6 +314,7 @@ void GLByteFlowRender::OnDrawFrame()
 		return;
 	}
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	m_FrameIndex++;
 	//glDrawArrays(GL_TRIANGLES, 0, m_FragCoors.nCoorsCount);
 
 }
@@ -309,25 +326,42 @@ void GLByteFlowRender::UpdateMVPMatrix(glm::mat4 &mat4Matrix, TransformMatrix &t
 	float fFactorY = 1.0f;
 
 	if (transformMatrix.mirror == 1)
+	{
 		fFactorX = -1.0f;
+	}
 	else if (transformMatrix.mirror == 2)
+	{
 		fFactorY = -1.0f;
+	}
 
-	float fRotate = 0.0f;
-	if (transformMatrix.mirror == 0) {
-		if (transformMatrix.degree == 270) {
+	float fRotate = MATH_PI * transformMatrix.degree * 1.0f / 180;
+	if (transformMatrix.mirror == 0)
+	{
+		if (transformMatrix.degree == 270)
+		{
 			fRotate = MATH_PI * 0.5;
-		} else if (transformMatrix.degree == 180) {
+		}
+		else if (transformMatrix.degree == 180)
+		{
 			fRotate = MATH_PI;
-		} else if (transformMatrix.degree == 90) {
+		}
+		else if (transformMatrix.degree == 90)
+		{
 			fRotate = MATH_PI * 1.5;
 		}
-	} else if (transformMatrix.mirror == 1) {
-		if (transformMatrix.degree == 90) {
+	}
+	else if (transformMatrix.mirror == 1)
+	{
+		if (transformMatrix.degree == 90)
+		{
 			fRotate = MATH_PI * 0.5;
-		} else if (transformMatrix.degree == 180) {
+		}
+		else if (transformMatrix.degree == 180)
+		{
 			fRotate = MATH_PI;
-		} else if (transformMatrix.degree == 270) {
+		}
+		else if (transformMatrix.degree == 270)
+		{
 			fRotate = MATH_PI * 1.5;
 		}
 	}
@@ -344,14 +378,18 @@ void GLByteFlowRender::UpdateMVPMatrix(glm::mat4 &mat4Matrix, TransformMatrix &t
 
 	// Model matrix : an identity matrix (model will be at the origin)
 	glm::mat4 Model = glm::mat4(1.0f);
-	Model = glm::scale(Model, glm::vec3(fFactorX * transformMatrix.scaleX, fFactorY * transformMatrix.scaleY, 1.0f));
+	Model = glm::scale(Model, glm::vec3(fFactorX * transformMatrix.scaleX,
+										fFactorY * transformMatrix.scaleY, 1.0f));
 	Model = glm::rotate(Model, fRotate, glm::vec3(0.0f, 0.0f, 1.0f));
-	Model = glm::translate(Model, glm::vec3(transformMatrix.translateX, transformMatrix.translateY, 0.0f));
+	Model = glm::translate(Model,
+						   glm::vec3(transformMatrix.translateX, transformMatrix.translateY, 0.0f));
 
 	LOGCATE("SetMVP real: rotate %d,%.2f,%0.5f,%0.5f,%0.5f,%0.5f,", transformMatrix.degree, fRotate,
-		 transformMatrix.translateX, transformMatrix.translateY, fFactorX * transformMatrix.scaleX, fFactorY * transformMatrix.scaleY);
+			transformMatrix.translateX, transformMatrix.translateY,
+			fFactorX * transformMatrix.scaleX, fFactorY * transformMatrix.scaleY);
 
-	mat4Matrix = Projection * View * Model;// Remember, matrix multiplication is the other way around
+	mat4Matrix =
+			Projection * View * Model;// Remember, matrix multiplication is the other way around
 
 }
 
@@ -378,28 +416,19 @@ GLuint GLByteFlowRender::UseProgram()
 		glUseProgram(m_Program);
 		GLUtils::CheckGLError("GLByteFlowRender::UseProgram");
 
-		glVertexAttribPointer(m_VertexCoorHandle, 2, GL_FLOAT, GL_FALSE, 2*4, VERTICES_COORS);
+		glVertexAttribPointer(m_VertexCoorHandle, 2, GL_FLOAT, GL_FALSE, 2 * 4, VERTICES_COORS);
 		glEnableVertexAttribArray(m_VertexCoorHandle);
-
-		UpdateMVPMatrix(m_MVPMatrix, m_TransformMatrix);
-
-		glUniformMatrix4fv(m_MVPHandle, 1, GL_FALSE, &m_MVPMatrix[0][0]);
 
 		glUniform1i(m_YTextureHandle, 0);
 		glUniform1i(m_UTextureHandle, 1);
 		glUniform1i(m_VTextureHandle, 2);
-		glVertexAttribPointer(m_TextureCoorHandle, 2, GL_FLOAT, GL_FALSE, 2*4, TEXTURE_COORS);
+		glVertexAttribPointer(m_TextureCoorHandle, 2, GL_FLOAT, GL_FALSE, 2 * 4, TEXTURE_COORS);
 		glEnableVertexAttribArray(m_TextureCoorHandle);
-
-		if (m_TextureSizeHandle >= 0) {
-			GLfloat size[2];
-			size[0] = m_RenderBufFrame.width;
-			size[1] = m_RenderBufFrame.height;
-			glUniform2fv(m_TextureSizeHandle, 1, &size[0]);
-		}
 
 		m_IsProgramChanged = false;
 	}
+
+	SetShaderProgramDynamicAttrib(m_ShaderIndex);
 
 	return m_Program;
 }
@@ -420,9 +449,89 @@ int GLByteFlowRender::CreateProgram(const char *pVertexShaderSource, const char 
 	m_VTextureHandle = glGetUniformLocation(m_Program, "s_textureV");
 
 	m_TextureSizeHandle = glGetUniformLocation(m_Program, "texSize");
+	m_OffsetHandle = glGetUniformLocation(m_Program, "u_offset");
 	m_VertexCoorHandle = (GLuint) glGetAttribLocation(m_Program, "position");
 	m_TextureCoorHandle = (GLuint) glGetAttribLocation(m_Program, "texcoord");
 	m_MVPHandle = glGetUniformLocation(m_Program, "MVP");
+	m_ColorDriftHandle = glGetUniformLocation(m_Program, "u_ColorDrift");
+	m_ScanLineJitterHandle = glGetUniformLocation(m_Program, "u_ScanLineJitter");
 
 	return m_Program;
+}
+
+float GLByteFlowRender::GetFrameProgress()
+{
+	float progress = m_FrameIndex * 1.0f / MAX_FRAME_NUM;
+	if (progress > 1)
+	{
+		progress = 0;
+	}
+
+	if (m_FrameIndex > MAX_FRAME_NUM + SKIP_FRAME_NUM)
+	{
+		m_FrameIndex = 0;
+	}
+	return progress;
+}
+
+void GLByteFlowRender::SetShaderProgramDynamicAttrib(int shaderIndex)
+{
+	float progress = GetFrameProgress();
+
+	LOGCATE("GLByteFlowRender::SetShaderProgramDynamicAttrib progress=%f, m_ShaderIndex=%d",
+			progress, shaderIndex);
+	TransformMatrix transformMatrix = m_TransformMatrix;
+	switch (shaderIndex)
+	{
+		case COLOR_SHIFT_SHADER_INDEX:
+			if (m_OffsetHandle >= 0)
+			{
+				glUniform1f(m_OffsetHandle, 0.01f * progress);
+			}
+			transformMatrix.scaleX = transformMatrix.scaleY = 1.0f + 0.2f * progress;
+			LOGCATE("GLByteFlowRender::SetShaderProgramDynamicAttrib transformMatrix.scaleX=%f",
+					transformMatrix.scaleX);
+			break;
+		case ANTI_WIHITE_SHADER_INDEX:
+		case SCALE_CIRCLE_SHADER_INDEX:
+			if (m_OffsetHandle >= 0)
+			{
+				float offset = progress < 0.5 ? progress : (1.0f - progress);
+				glUniform1f(m_OffsetHandle, offset);
+			}
+			break;
+		case ROTATE_CIRCLE_SHADER_INDEX:
+			if (m_OffsetHandle >= 0)
+			{
+				float offset = static_cast<float>(progress * 2 * MATH_PI);
+				glUniform1f(m_OffsetHandle, offset);
+			}
+			break;
+		case DYNAMIC_GLITCH_SHADER_INDEX:
+		{
+			int seqIndex = m_FrameIndex % 9;
+			if (m_ScanLineJitterHandle >= 0)
+			{
+				glUniform2f(m_ScanLineJitterHandle, JITTER_SEQ[seqIndex], THRESHHOLD_SEQ[seqIndex]);
+			}
+			if (m_ColorDriftHandle >= 0)
+			{
+				glUniform1f(m_ColorDriftHandle, DRIFT_SEQ[seqIndex]);
+			}
+		}
+			break;
+		default:
+			break;
+	}
+	UpdateMVPMatrix(m_MVPMatrix, transformMatrix);
+	glUniformMatrix4fv(m_MVPHandle, 1, GL_FALSE, &m_MVPMatrix[0][0]);
+
+	if (m_TextureSizeHandle >= 0)
+	{
+		GLfloat size[2];
+		size[0] = m_RenderBufFrame.width;
+		size[1] = m_RenderBufFrame.height;
+		glUniform2fv(m_TextureSizeHandle, 1, &size[0]);
+	}
+
 }

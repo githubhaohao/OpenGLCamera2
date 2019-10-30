@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -81,6 +82,17 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
 
         mCamera2Wrapper = new Camera2Wrapper(this);
 
+        ViewTreeObserver treeObserver = mSurfaceViewRoot.getViewTreeObserver();
+        treeObserver.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean  onPreDraw() {
+                mSurfaceViewRoot.getViewTreeObserver().removeOnPreDrawListener(this);
+                mRootViewSize = new Size(mSurfaceViewRoot.getMeasuredWidth(), mSurfaceViewRoot.getMeasuredHeight());
+                updateGLSurfaceViewSize(mCamera2Wrapper.getPreviewSize());
+                return true;
+            }
+        });
+
     }
 
     @Override
@@ -92,7 +104,9 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
             ActivityCompat.requestPermissions(this, REQUEST_PERMISSIONS, CAMERA_PERMISSION_REQUEST_CODE);
         }
         updateTransformMatrix(mCamera2Wrapper.getCameraId());
-        updateGLSurfaceViewSize(mCamera2Wrapper.getPreviewSize());
+        if (mSurfaceViewRoot != null) {
+            updateGLSurfaceViewSize(mCamera2Wrapper.getPreviewSize());
+        }
     }
 
     @Override

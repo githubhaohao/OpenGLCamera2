@@ -12,33 +12,16 @@
 #include <vector>
 #include "ByteFlowRender.h"
 
-typedef struct _tag_ByteFlowCoordinate
-{
-	int nCoorsCount;
-	float *pCoordiantes;
+#define SPLIT_SCREEN_SHADER_INDEX     13
+#define COLOR_SHIFT_SHADER_INDEX      14
+#define ANTI_WIHITE_SHADER_INDEX      15
+#define SCALE_CIRCLE_SHADER_INDEX     16
+#define ROTATE_CIRCLE_SHADER_INDEX    17
+#define DYNAMIC_GLITCH_SHADER_INDEX   18
 
-	_tag_ByteFlowCoordinate()
-	{
-		nCoorsCount = 0;
-		pCoordiantes = NULL;
-	}
+#define MAX_FRAME_NUM  30
+#define SKIP_FRAME_NUM 5
 
-} ByteFlowCoordinate;
-
-typedef struct _tag_ByteFlowMask
-{
-	size_t width;
-	size_t height;
-	uint8_t *pMaskPlane;
-
-	_tag_ByteFlowMask()
-	{
-		width = 0;
-		height = 0;
-		pMaskPlane = NULL;
-	}
-
-} ByteFlowMask;
 
 class GLByteFlowRender : public ByteFlowRender
 {
@@ -74,6 +57,10 @@ public:
 
 	void UpdateMVPMatrix(glm::mat4 &mat4Matrix, TransformMatrix &transformMatrix);
 
+	float GetFrameProgress();
+
+	void SetShaderProgramDynamicAttrib(int shaderIndex);
+
 	GLuint UseProgram();
 
 private:
@@ -92,13 +79,18 @@ private:
 	GLint m_YTextureHandle;
 	GLint m_UTextureHandle;
 	GLint m_VTextureHandle;
+	GLint m_ColorDriftHandle;
+	GLint m_ScanLineJitterHandle;
 
 	GLint m_TextureSizeHandle;
+	GLint m_OffsetHandle;
 	GLint m_MVPHandle;
 
 	std::vector<const char *> m_FragShaders;
 	int m_ShaderIndex;
 	volatile bool m_IsShaderChanged;
+
+	int m_FrameIndex;
 
 };
 
