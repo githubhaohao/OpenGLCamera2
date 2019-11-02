@@ -1,6 +1,8 @@
 package com.byteflow.openglcamera2;
 
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.camera2.CameraCharacteristics;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
@@ -16,14 +18,20 @@ import com.byteflow.openglcamera2.camera.CameraUtil;
 import com.byteflow.openglcamera2.gesture.MyGestureListener;
 import com.byteflow.openglcamera2.render.GLByteFlowRender;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+
+import static com.byteflow.openglcamera2.render.ByteFlowRender.IMAGE_FORMAT_RGBA;
+
 public abstract class BaseRenderActivity extends AppCompatActivity implements MyGestureListener.SimpleGestureListener {
     private static final String TAG = "BaseRenderActivity";
-    protected static final int SHADER_NUM = 19;
+    protected static final int SHADER_NUM = 20;
     protected GLByteFlowRender mByteFlowRender;
     protected GLSurfaceView mGLSurfaceView;
     protected MyGestureListener mGestureDetector;
     protected int mCurrentShaderIndex = 0;
-    protected Size mRootViewSize;
+    protected Size mRootViewSize, mScreenSize;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,20 +79,43 @@ public abstract class BaseRenderActivity extends AppCompatActivity implements My
 
     public void updateGLSurfaceViewSize(Size previewSize) {
         Size fitSize = null;
-        if (mRootViewSize == null) {
-            DisplayMetrics displayMetrics = new DisplayMetrics();
-            getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-            fitSize = CameraUtil.getFitInScreenSize(previewSize.getWidth(), previewSize.getHeight(), displayMetrics.widthPixels, displayMetrics.heightPixels);
-        } else {
-            fitSize = CameraUtil.getFitInScreenSize(previewSize.getWidth(), previewSize.getHeight(), mRootViewSize.getWidth(), mRootViewSize.getHeight());
-        }
-
+        fitSize = CameraUtil.getFitInScreenSize(previewSize.getWidth(), previewSize.getHeight(), getScreenSize().getWidth(), getScreenSize().getHeight());
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mGLSurfaceView
                 .getLayoutParams();
         params.width = fitSize.getWidth();
         params.height = fitSize.getHeight();
-        params.addRule(RelativeLayout.CENTER_IN_PARENT);
+        params.addRule(RelativeLayout.ALIGN_PARENT_TOP | RelativeLayout.CENTER_HORIZONTAL);
 
         mGLSurfaceView.setLayoutParams(params);
+    }
+
+    public Size getScreenSize() {
+        if (mScreenSize == null) {
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            mScreenSize = new Size(displayMetrics.widthPixels, displayMetrics.heightPixels);
+        }
+        return mScreenSize;
+    }
+
+    public void loadRGBAImage(int resId, int index) {
+        InputStream is = this.getResources().openRawResource(resId);
+        Bitmap bitmap;
+        try {
+            bitmap = BitmapFactory.decodeStream(is);
+            if (bitmap != null) {
+                int bytes = bitmap.getByteCount();
+                ByteBuffer buf = ByteBuffer.allocate(bytes);
+                bitmap.copyPixelsToBuffer(buf);
+                byte[] byteArray = buf.array();
+                mByteFlowRender.loadLutImage(index, IMAGE_FORMAT_RGBA, bitmap.getWidth(), bitmap.getHeight(), byteArray);
+            }
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

@@ -38,11 +38,13 @@ GLByteFlowRender::GLByteFlowRender() :
 		m_YTextureId(0),
 		m_UTextureId(0),
 		m_VTextureId(0),
+		m_LutTextureId(0),
 		m_VertexCoorHandle(0),
 		m_TextureCoorHandle(0),
 		m_YTextureHandle(0),
 		m_UTextureHandle(0),
 		m_VTextureHandle(0),
+		m_LutTextureHandle(0),
 		m_TextureSizeHandle(0),
 		m_OffsetHandle(0),
 		m_MVPHandle(0),
@@ -53,11 +55,13 @@ GLByteFlowRender::GLByteFlowRender() :
 	LOGCATE("GLByteFlowRender::GLByteFlowRender");
 	m_IsProgramChanged = true;
 	m_IsProgramChanged = false;
+	memset(&m_LutImage, 0, sizeof(NativeImage));
 }
 
 GLByteFlowRender::~GLByteFlowRender()
 {
 	LOGCATE("GLByteFlowRender::~GLByteFlowRender");
+	NativeImageUtil::FreeNativeImage(&m_LutImage);
 
 }
 
@@ -83,6 +87,7 @@ int GLByteFlowRender::Init(int initType)
 	m_FragShaders.push_back(kFragmentShader16);
 	m_FragShaders.push_back(kFragmentShader17);
 	m_FragShaders.push_back(kFragmentShader18);
+	m_FragShaders.push_back(kFragmentShader19);
 	return 0;
 }
 
@@ -245,6 +250,19 @@ bool GLByteFlowRender::UpdateTextures()
 				 (GLsizei) m_RenderBufFrame.height >> 1, 0,
 				 GL_LUMINANCE, GL_UNSIGNED_BYTE, m_RenderBufFrame.pVPlane);
 
+	if (m_LutImage.ppPlane[0] && !m_LutTextureId)
+	{
+		glActiveTexture(GL_TEXTURE3);
+		glGenTextures(1, &m_LutTextureId);
+		glBindTexture(GL_TEXTURE_2D, m_LutTextureId);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_LutImage.width, m_LutImage.height, 0, GL_RGBA,
+					 GL_UNSIGNED_BYTE, m_LutImage.ppPlane[0]);
+	}
+
 	return true;
 }
 
@@ -276,6 +294,15 @@ bool GLByteFlowRender::DeleteTextures()
 		glDeleteTextures(1, &m_VTextureId);
 
 		m_VTextureId = 0;
+	}
+
+	if (m_LutTextureId)
+	{
+		glActiveTexture(GL_TEXTURE3);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glDeleteTextures(1, &m_LutTextureId);
+
+		m_LutTextureId = 0;
 	}
 	return true;
 }
@@ -422,6 +449,12 @@ GLuint GLByteFlowRender::UseProgram()
 		glUniform1i(m_YTextureHandle, 0);
 		glUniform1i(m_UTextureHandle, 1);
 		glUniform1i(m_VTextureHandle, 2);
+
+		if (m_LutTextureHandle >= 0 && m_LutTextureId)
+		{
+			glUniform1i(m_LutTextureHandle, 3);
+		}
+
 		glVertexAttribPointer(m_TextureCoorHandle, 2, GL_FLOAT, GL_FALSE, 2 * 4, TEXTURE_COORS);
 		glEnableVertexAttribArray(m_TextureCoorHandle);
 
@@ -448,11 +481,15 @@ int GLByteFlowRender::CreateProgram(const char *pVertexShaderSource, const char 
 	m_UTextureHandle = glGetUniformLocation(m_Program, "s_textureU");
 	m_VTextureHandle = glGetUniformLocation(m_Program, "s_textureV");
 
+	m_LutTextureHandle = glGetUniformLocation(m_Program, "s_LutTexture");
+
 	m_TextureSizeHandle = glGetUniformLocation(m_Program, "texSize");
 	m_OffsetHandle = glGetUniformLocation(m_Program, "u_offset");
+
 	m_VertexCoorHandle = (GLuint) glGetAttribLocation(m_Program, "position");
 	m_TextureCoorHandle = (GLuint) glGetAttribLocation(m_Program, "texcoord");
 	m_MVPHandle = glGetUniformLocation(m_Program, "MVP");
+
 	m_ColorDriftHandle = glGetUniformLocation(m_Program, "u_ColorDrift");
 	m_ScanLineJitterHandle = glGetUniformLocation(m_Program, "u_ScanLineJitter");
 
@@ -534,4 +571,16 @@ void GLByteFlowRender::SetShaderProgramDynamicAttrib(int shaderIndex)
 		glUniform2fv(m_TextureSizeHandle, 1, &size[0]);
 	}
 
+}
+
+void GLByteFlowRender::LoadLutImageData(int index, NativeImage *pImage)
+{
+	LOGCATE("GLByteFlowRender::LoadLutImageData pImage = %p, index=%d", pImage->ppPlane[0], index);
+	if (pImage)
+	{
+		m_LutImage.width = pImage->width;
+		m_LutImage.height = pImage->height;
+		m_LutImage.format = pImage->format;
+		NativeImageUtil::CopyNativeImage(pImage, &m_LutImage);
+	}
 }

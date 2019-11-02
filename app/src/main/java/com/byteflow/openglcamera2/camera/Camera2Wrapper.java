@@ -23,7 +23,6 @@ import android.util.AndroidRuntimeException;
 import android.util.Log;
 import android.util.Size;
 
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Semaphore;
@@ -46,7 +45,8 @@ public class Camera2Wrapper {
     private Integer mSensorOrientation;
 
     private Semaphore mCameraLock = new Semaphore(1);
-    private Size mDefaultImageSize = new Size(1920, 1080);
+    private Size mDefaultPreviewSize = new Size(1920, 1080);
+    private Size mDefaultCaptureSize = new Size(1920, 1080);
 
     private Size mPreviewSize, mPictureSize;
     private List<Size> mSupportPreviewSize, mSupportPictureSize;
@@ -116,27 +116,48 @@ public class Camera2Wrapper {
             mSupportPreviewSize = Arrays.asList(streamConfigs.getOutputSizes(SurfaceTexture.class));
 
             boolean supportDefaultSize = false;
+            Size sameRatioSize = null;
+            float defaultRatio = mDefaultPreviewSize.getWidth() * 1.0f / mDefaultPreviewSize.getHeight();
             mPreviewSize = mSupportPreviewSize.get(0);
             for (Size size : mSupportPreviewSize) {
                 Log.d(TAG, "initCamera2Wrapper() called mSupportPreviewSize " + size.getWidth() + "x" + size.getHeight());
-                if (mDefaultImageSize.getWidth() == size.getWidth() && mDefaultImageSize.getHeight() == size.getHeight()) {
+                float ratio = size.getWidth() * 1.0f / size.getHeight();
+                if (ratio == defaultRatio) {
+                    sameRatioSize = size;
+                }
+
+                if (mDefaultPreviewSize.getWidth() == size.getWidth() && mDefaultPreviewSize.getHeight() == size.getHeight()) {
                     supportDefaultSize = true;
+                    break;
                 }
             }
             if (supportDefaultSize) {
-                mPreviewSize = mDefaultImageSize;
+                mPreviewSize = mDefaultPreviewSize;
+            } else if(sameRatioSize != null) {
+                mPreviewSize = sameRatioSize;
             }
+
             supportDefaultSize = false;
+            sameRatioSize = null;
+            defaultRatio = mDefaultCaptureSize.getWidth() * 1.0f / mDefaultCaptureSize.getHeight();
             mSupportPictureSize = Arrays.asList(streamConfigs.getOutputSizes(ImageFormat.YUV_420_888));
             mPictureSize = mSupportPictureSize.get(0);
             for (Size size : mSupportPictureSize) {
                 Log.d(TAG, "initCamera2Wrapper() called mSupportPictureSize " + size.getWidth() + "x" + size.getHeight());
-                if (mDefaultImageSize.getWidth() == size.getWidth() && mDefaultImageSize.getHeight() == size.getHeight()) {
+                float ratio = size.getWidth() * 1.0f / size.getHeight();
+                if (ratio == defaultRatio) {
+                    sameRatioSize = size;
+                }
+
+                if (mDefaultCaptureSize.getWidth() == size.getWidth() && mDefaultCaptureSize.getHeight() == size.getHeight()) {
                     supportDefaultSize = true;
+                    break;
                 }
             }
             if (supportDefaultSize) {
-                mPictureSize = mDefaultImageSize;
+                mPictureSize = mDefaultCaptureSize;
+            }  else if(sameRatioSize != null) {
+                mPictureSize = sameRatioSize;
             }
         }
         mSensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
@@ -380,6 +401,18 @@ public class Camera2Wrapper {
             mCameraCaptureSession.capture(captureBuilder.build(), CaptureCallback, null);
         } catch (CameraAccessException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void setDefaultPreviewSize(Size size) {
+        if (size != null && size.getWidth() * size.getHeight() > 0) {
+            mDefaultPreviewSize = size;
+        }
+    }
+
+    public void setDefaultCaptureSize(Size size) {
+        if (size != null && size.getWidth() * size.getHeight() > 0) {
+            mDefaultCaptureSize = size;
         }
     }
 

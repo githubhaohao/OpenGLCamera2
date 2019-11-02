@@ -1,11 +1,10 @@
 #version 100
-
 precision highp float;
 varying vec2 v_texcoord;
 uniform lowp sampler2D s_textureY;
 uniform lowp sampler2D s_textureU;
 uniform lowp sampler2D s_textureV;
-uniform vec2 texSize;
+uniform float u_offset;
 vec4 YuvToRgb(vec2 uv) {
     float y, u, v, r, g, b;
     y = texture2D(s_textureY, uv).r;
@@ -18,13 +17,11 @@ vec4 YuvToRgb(vec2 uv) {
     b = y + 1.770 * u;
     return vec4(r, g, b, 1.0);
 }
-void main() {
-    vec2 tileNum = vec2(40.0, 20.0);
-    vec2 uv = v_texcoord;
-    vec2 uv2 = floor(uv * tileNum) / tileNum;
-    uv -= uv2;
-    uv *= tileNum;
-    vec3 color = YuvToRgb(uv2 + vec2(step(1.0 - uv.y, uv.x) / (2.0 * tileNum.x),
-    step(uv.x, uv.y) / (2.0 * tileNum.y))).rgb;
-    gl_FragColor = vec4(color, 1.0);
+void main()
+{
+    vec4 originColor = YuvToRgb(v_texcoord);
+    vec4 offsetColor0 = YuvToRgb(vec2(v_texcoord.x + u_offset, v_texcoord.y + u_offset));
+    vec4 offsetColor1 = YuvToRgb(vec2(v_texcoord.x - u_offset, v_texcoord.y - u_offset));
+
+    gl_FragColor = vec4(originColor.r, offsetColor1.g, offsetColor0.b, originColor.a);
 }

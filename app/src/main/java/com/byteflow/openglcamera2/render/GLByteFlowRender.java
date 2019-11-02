@@ -48,6 +48,10 @@ public class GLByteFlowRender extends ByteFlowRender implements GLSurfaceView.Re
         return native_GetParamsInt(paramType);
     }
 
+    public void loadLutImage(int index, int format, int width, int height, byte[] bytes) {
+        native_LoadLutData(index, format, width, height, bytes);
+    }
+
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         Log.d(TAG, "onSurfaceCreated() called with: gl = [" + gl + "], config = [" + config + "]");

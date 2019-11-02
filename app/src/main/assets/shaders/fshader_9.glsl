@@ -1,4 +1,5 @@
 #version 100
+
 precision highp float;
 varying vec2 v_texcoord;
 uniform lowp sampler2D s_textureY;
@@ -17,21 +18,33 @@ vec4 YuvToRgb(vec2 uv) {
     b = y + 1.770 * u;
     return vec4(r, g, b, 1.0);
 }
+vec4 CrossStitching(vec2 uv) {
+    float stitchSize = texSize.x / 35.0;
+    int invert = 0;
+    vec4 color = vec4(0.0);
+    float size = stitchSize;
+    vec2 cPos = uv * texSize.xy;
+    vec2 tlPos = floor(cPos / vec2(size, size));
+    tlPos *= size;
+    int remX = int(mod(cPos.x, size));
+    int remY = int(mod(cPos.y, size));
+    if (remX == 0 && remY == 0)
+    tlPos = cPos;
+    vec2 blPos = tlPos;
+    blPos.y += (size - 1.0);
+    if ((remX == remY) || (((int(cPos.x) - int(blPos.x)) == (int(blPos.y) - int(cPos.y))))) {
+        if (invert == 1)
+        color = vec4(0.2, 0.15, 0.05, 1.0);
+        else
+        color = YuvToRgb(tlPos * vec2(1.0 / texSize.x, 1.0 / texSize.y)) * 1.4;
+    } else {
+        if (invert == 1)
+        color = YuvToRgb(tlPos * vec2(1.0 / texSize.x, 1.0 / texSize.y)) * 1.4;
+        else
+        color = vec4(0.0, 0.0, 0.0, 1.0);
+    }
+    return color;
+}
 void main() {
-    float newY;
-    if(v_texcoord.y <= 1.0/3.0)
-    {
-        newY = v_texcoord.y + 1.0/3.0;
-        gl_FragColor = YuvToRgb(vec2(v_texcoord.x, newY));
-    }
-    else if(1.0/3.0 <= v_texcoord.y && v_texcoord.y <= 2.0/3.0)
-    {
-        gl_FragColor = YuvToRgb(v_texcoord);
-    }
-    else
-    {
-        newY = v_texcoord.y - 1.0/3.0;
-        gl_FragColor = YuvToRgb(vec2(v_texcoord.x, newY));
-    }
-
+    gl_FragColor = CrossStitching(v_texcoord);
 }

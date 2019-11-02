@@ -1,10 +1,13 @@
 package com.byteflow.openglcamera2;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.renderscript.Byte4;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Size;
+import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 
@@ -12,6 +15,11 @@ import com.byteflow.openglcamera2.frame.ByteFlowFrame;
 import com.byteflow.openglcamera2.frame.FrameUtil;
 import com.byteflow.openglcamera2.gesture.MyGestureListener;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+
+import static com.byteflow.openglcamera2.render.ByteFlowRender.IMAGE_FORMAT_RGBA;
 import static com.byteflow.openglcamera2.render.ByteFlowRender.PARAM_TYPE_SET_SHADER_INDEX;
 
 public class ImageActivity extends BaseRenderActivity {
@@ -22,6 +30,8 @@ public class ImageActivity extends BaseRenderActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_image);
 
         mSurfaceViewRoot = findViewById(R.id.surface_root);
@@ -31,6 +41,7 @@ public class ImageActivity extends BaseRenderActivity {
         mSurfaceViewRoot.addView(mGLSurfaceView, p);
 
         mByteFlowRender.init(mGLSurfaceView);
+        loadRGBAImage(R.drawable.lookup_vertigo, 0);
 
         String path = getIntent().getStringExtra("img_path");
         String camera_id = getIntent().getStringExtra("img_ort");

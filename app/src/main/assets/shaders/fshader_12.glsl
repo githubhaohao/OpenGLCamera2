@@ -1,4 +1,5 @@
 #version 100
+
 precision highp float;
 varying vec2 v_texcoord;
 uniform lowp sampler2D s_textureY;
@@ -18,20 +19,11 @@ vec4 YuvToRgb(vec2 uv) {
     return vec4(r, g, b, 1.0);
 }
 void main() {
-    float newY;
-    if(v_texcoord.y <= 1.0/3.0)
-    {
-        newY = v_texcoord.y + 1.0/3.0;
-        gl_FragColor = YuvToRgb(vec2(v_texcoord.x, newY));
-    }
-    else if(1.0/3.0 <= v_texcoord.y && v_texcoord.y <= 2.0/3.0)
-    {
-        gl_FragColor = YuvToRgb(v_texcoord);
-    }
-    else
-    {
-        newY = v_texcoord.y - 1.0/3.0;
-        gl_FragColor = YuvToRgb(vec2(v_texcoord.x, newY));
-    }
-
+    vec4 color;
+    color.rgb = vec3(0.5);
+    vec2 onePixel = vec2(1.0 / texSize.x, 1.0 / texSize.y);
+    color -= YuvToRgb(v_texcoord - onePixel) * 5.0;
+    color += YuvToRgb(v_texcoord + onePixel) * 5.0;
+    color.rgb = vec3((color.r + color.g + color.b) / 3.0);
+    gl_FragColor = vec4(color.rgb, 1.0);
 }

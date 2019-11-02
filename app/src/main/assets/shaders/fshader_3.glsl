@@ -5,33 +5,29 @@ uniform lowp sampler2D s_textureY;
 uniform lowp sampler2D s_textureU;
 uniform lowp sampler2D s_textureV;
 uniform vec2 texSize;
-vec4 YuvToRgb(vec2 uv) {
+void main() {
+    float radius = 200.0;
+    float angle = 0.8;
+    vec2 center = vec2(texSize.x / 2.0, texSize.y / 2.0);
+    vec2 tc = v_texcoord * texSize;
+    tc -= center;
+    float dist = length(tc);
+    if (dist < radius) {
+        float percent = (radius - dist) / radius;
+        float theta = percent * percent * angle * 8.0;
+        float s = sin(theta);
+        float c = cos(theta);
+        tc = vec2(dot(tc, vec2(c, -s)), dot(tc, vec2(s, c)));
+    }
+    tc += center;
     float y, u, v, r, g, b;
-    y = texture2D(s_textureY, uv).r;
-    u = texture2D(s_textureU, uv).r;
-    v = texture2D(s_textureV, uv).r;
+    y = texture2D(s_textureY, tc / texSize).r;
+    u = texture2D(s_textureU, tc / texSize).r;
+    v = texture2D(s_textureV, tc / texSize).r;
     u = u - 0.5;
     v = v - 0.5;
     r = y + 1.403 * v;
     g = y - 0.344 * u - 0.714 * v;
     b = y + 1.770 * u;
-    return vec4(r, g, b, 1.0);
-}
-void main() {
-    float newY;
-    if(v_texcoord.y <= 1.0/3.0)
-    {
-        newY = v_texcoord.y + 1.0/3.0;
-        gl_FragColor = YuvToRgb(vec2(v_texcoord.x, newY));
-    }
-    else if(1.0/3.0 <= v_texcoord.y && v_texcoord.y <= 2.0/3.0)
-    {
-        gl_FragColor = YuvToRgb(v_texcoord);
-    }
-    else
-    {
-        newY = v_texcoord.y - 1.0/3.0;
-        gl_FragColor = YuvToRgb(vec2(v_texcoord.x, newY));
-    }
-
+    gl_FragColor = vec4(r, g, b, 1.0);
 }

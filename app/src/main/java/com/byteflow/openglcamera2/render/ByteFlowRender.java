@@ -4,6 +4,11 @@ public abstract class ByteFlowRender {
     public static final int GL_RENDER_TYPE = 0;
     public static final int CL_RENDER_TYPE = 1;
 
+    public static final int IMAGE_FORMAT_RGBA = 0x01;
+    public static final int IMAGE_FORMAT_NV21 = 0x02;
+    public static final int IMAGE_FORMAT_NV12 = 0x03;
+    public static final int IMAGE_FORMAT_I420 = 0x04;
+
     public static final int PARAM_TYPE_SET_SHADER_INDEX = 201;
 
     static {
@@ -21,6 +26,8 @@ public abstract class ByteFlowRender {
     protected native int native_UnInit();
 
     protected native void native_UpdateFrame(byte[] data, int width, int height);
+
+    protected native void native_LoadLutData(int index, int format, int width, int height, byte[] bytes);
 
     protected native void native_SetTransformMatrix(float translateX, float translateY, float scaleX, float scaleY, int degree, int mirror);
 

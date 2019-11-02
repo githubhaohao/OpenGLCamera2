@@ -18,20 +18,32 @@ vec4 YuvToRgb(vec2 uv) {
     return vec4(r, g, b, 1.0);
 }
 void main() {
-    float newY;
+    float newY, newX;
     if(v_texcoord.y <= 1.0/3.0)
     {
         newY = v_texcoord.y + 1.0/3.0;
-        gl_FragColor = YuvToRgb(vec2(v_texcoord.x, newY));
     }
     else if(1.0/3.0 <= v_texcoord.y && v_texcoord.y <= 2.0/3.0)
     {
-        gl_FragColor = YuvToRgb(v_texcoord);
+        newY = v_texcoord.y;
     }
     else
     {
         newY = v_texcoord.y - 1.0/3.0;
-        gl_FragColor = YuvToRgb(vec2(v_texcoord.x, newY));
     }
 
+    if(v_texcoord.x <= 1.0/3.0)
+    {
+        newX = v_texcoord.x + 1.0/3.0;
+    }
+    else if(1.0/3.0 <= v_texcoord.x && v_texcoord.x <= 2.0/3.0)
+    {
+        newX = v_texcoord.x;
+    }
+    else
+    {
+        newX = v_texcoord.x - 1.0/3.0;
+    }
+
+    gl_FragColor = YuvToRgb(vec2(newX, newY));
 }

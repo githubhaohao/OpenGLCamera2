@@ -10,6 +10,7 @@
 #include <detail/type_mat4x4.hpp>
 #include <GLES3/gl3.h>
 #include <vector>
+#include <ImageDef.h>
 #include "ByteFlowRender.h"
 
 #define SPLIT_SCREEN_SHADER_INDEX     13
@@ -34,6 +35,8 @@ public:
 	virtual int UnInit();
 
 	virtual void UpdateFrame(uint8_t *pBuffer, int width, int height);
+
+	virtual void LoadLutImageData(int index, NativeImage *pImage);
 
 	virtual void SetTransformMatrix(float translateX, float translateY, float scaleX, float scaleY, int degree, int mirror);
 
@@ -70,15 +73,20 @@ private:
 	GLuint m_UTextureId;
 	GLuint m_VTextureId;
 
+	GLuint m_LutTextureId;
+
 	GLuint m_Program;
 	GLuint m_VertexShader;
 	GLuint m_FragShader;
 
 	GLuint m_VertexCoorHandle;
 	GLuint m_TextureCoorHandle;
+
 	GLint m_YTextureHandle;
 	GLint m_UTextureHandle;
 	GLint m_VTextureHandle;
+	GLint m_LutTextureHandle;
+
 	GLint m_ColorDriftHandle;
 	GLint m_ScanLineJitterHandle;
 
@@ -91,6 +99,7 @@ private:
 	volatile bool m_IsShaderChanged;
 
 	int m_FrameIndex;
+	NativeImage m_LutImage;
 
 };
 

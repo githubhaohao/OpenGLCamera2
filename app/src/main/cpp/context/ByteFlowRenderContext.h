@@ -36,6 +36,8 @@ public:
 
 	void UpdateFrame(uint8_t *pBuffer, int width, int height);
 
+	void LoadLutImageData(int index, int format, int width, int height, uint8_t *pData);
+
 	void SetTransformMatrix(float translateX, float translateY, float scaleX, float scaleY, int degree, int mirror);
 
 	void SetParamsInt(int paramType, int param);

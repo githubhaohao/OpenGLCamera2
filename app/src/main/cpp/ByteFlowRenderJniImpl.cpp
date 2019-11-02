@@ -65,6 +65,23 @@ JNIEXPORT void JNICALL native_UpdateFrame(JNIEnv *env, jobject instance, jbyteAr
 
 /*
  * Class:     com_byteflow_openglcamera2_render_ByteFlowRender
+ * Method:    native_LoadLutData
+ * Signature: (IIII[B)V
+ */
+JNIEXPORT void JNICALL native_LoadLutData
+		(JNIEnv *env, jobject instance, jint index, jint format, jint width, jint height, jbyteArray imageData)
+{
+	int len = env->GetArrayLength (imageData);
+	uint8_t* buf = new uint8_t[len];
+	env->GetByteArrayRegion(imageData, 0, len, reinterpret_cast<jbyte*>(buf));
+	ByteFlowRenderContext *pContext = ByteFlowRenderContext::GetRenderContext(env, instance);
+	if(pContext) pContext->LoadLutImageData(index, format, width, height, buf);
+	delete[] buf;
+	env->DeleteLocalRef(imageData);
+}
+
+/*
+ * Class:     com_byteflow_openglcamera2_render_ByteFlowRender
  * Method:    native_SetTransformMatrix
  * Signature: (FFFFII)V
  */
@@ -141,6 +158,7 @@ static JNINativeMethod g_RenderMethods[] = {
 		{"native_Init",               "(I)I",      (void *)(native_Init)},
 		{"native_UnInit",             "()I",       (void *)(native_UnInit)},
 		{"native_UpdateFrame",        "([BII)V",   (void *)(native_UpdateFrame)},
+		{"native_LoadLutData",        "(IIII[B)V", (void *)(native_LoadLutData)},
 		{"native_SetTransformMatrix", "(FFFFII)V", (void *)(native_SetTransformMatrix)},
 		{"native_SetParamsInt",       "(II)V",     (void *)(native_SetParamsInt)},
 		{"native_GetParamsInt",       "(I)I",      (void *)(native_GetParamsInt)},

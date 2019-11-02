@@ -5,16 +5,15 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.Size;
 import android.view.LayoutInflater;
@@ -23,7 +22,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
@@ -36,15 +37,12 @@ import com.byteflow.openglcamera2.frame.ByteFlowFrame;
 import com.byteflow.openglcamera2.frame.FrameUtil;
 import com.byteflow.openglcamera2.gesture.MyGestureListener;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.byteflow.openglcamera2.render.ByteFlowRender.PARAM_TYPE_SET_SHADER_INDEX;
 
-public class MainActivity extends BaseRenderActivity implements Camera2FrameCallback, MyGestureListener.SimpleGestureListener {
+public class MainActivity extends BaseRenderActivity implements Camera2FrameCallback, MyGestureListener.SimpleGestureListener, View.OnClickListener {
     private static final String TAG = "MainActivity";
     private static final String[] REQUEST_PERMISSIONS = {
             Manifest.permission.CAMERA,
@@ -53,13 +51,16 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 1;
     private RelativeLayout mSurfaceViewRoot;
     private Camera2Wrapper mCamera2Wrapper;
+    private ImageButton mSwitchCamBtn, mSwitchRatioBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        //Toolbar toolbar = findViewById(R.id.toolbar);
+        //setSupportActionBar(toolbar);
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -73,26 +74,7 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
             }
         });
 
-        mSurfaceViewRoot = findViewById(R.id.surface_root);
-        RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
-                RelativeLayout.LayoutParams.MATCH_PARENT);
-        mSurfaceViewRoot.addView(mGLSurfaceView, p);
-
-        mByteFlowRender.init(mGLSurfaceView);
-
-        mCamera2Wrapper = new Camera2Wrapper(this);
-
-        ViewTreeObserver treeObserver = mSurfaceViewRoot.getViewTreeObserver();
-        treeObserver.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-            @Override
-            public boolean  onPreDraw() {
-                mSurfaceViewRoot.getViewTreeObserver().removeOnPreDrawListener(this);
-                mRootViewSize = new Size(mSurfaceViewRoot.getMeasuredWidth(), mSurfaceViewRoot.getMeasuredHeight());
-                updateGLSurfaceViewSize(mCamera2Wrapper.getPreviewSize());
-                return true;
-            }
-        });
-
+        initViews();
     }
 
     @Override
@@ -191,6 +173,37 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
 
     }
 
+    private void initViews() {
+        mSwitchCamBtn = findViewById(R.id.switch_camera_btn);
+        mSwitchRatioBtn = findViewById(R.id.switch_ratio_btn);
+        mSwitchCamBtn.bringToFront();
+        mSwitchRatioBtn.bringToFront();
+        mSwitchCamBtn.setOnClickListener(this);
+        mSwitchRatioBtn.setOnClickListener(this);
+
+        mSurfaceViewRoot = findViewById(R.id.surface_root);
+        RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.MATCH_PARENT);
+        mSurfaceViewRoot.addView(mGLSurfaceView, p);
+        mByteFlowRender.init(mGLSurfaceView);
+
+        loadRGBAImage(R.drawable.new_lut, 0);
+
+        mCamera2Wrapper = new Camera2Wrapper(this);
+        mCamera2Wrapper.setDefaultPreviewSize(getScreenSize());
+
+        ViewTreeObserver treeObserver = mSurfaceViewRoot.getViewTreeObserver();
+        treeObserver.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean  onPreDraw() {
+                mSurfaceViewRoot.getViewTreeObserver().removeOnPreDrawListener(this);
+                mRootViewSize = new Size(mSurfaceViewRoot.getMeasuredWidth(), mSurfaceViewRoot.getMeasuredHeight());
+                updateGLSurfaceViewSize(mCamera2Wrapper.getPreviewSize());
+                return true;
+            }
+        });
+    }
+
     private void showChangeSizeDialog() {
         if (mCamera2Wrapper.getSupportPreviewSize() == null || mCamera2Wrapper.getSupportPreviewSize().size() == 0)
             return;
@@ -282,6 +295,7 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
 
         RadioGroup radioGroup = rootView.findViewById(R.id.radio_group);
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @SuppressLint("ResourceAsColor")
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -328,6 +342,30 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
                 break;
         }
 
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.switch_camera_btn:
+                String cameraId = mCamera2Wrapper.getCameraId();
+                String[] cameraIds = mCamera2Wrapper.getSupportCameraIds();
+                if (cameraIds != null) {
+                    for (int i = 0; i < cameraIds.length; i++) {
+                        if (!cameraIds[i].equals(cameraId)) {
+                            mCamera2Wrapper.updateCameraId(cameraIds[i]);
+                            updateTransformMatrix(cameraIds[i]);
+                            updateGLSurfaceViewSize(mCamera2Wrapper.getPreviewSize());
+                            break;
+                        }
+                    }
+                }
+                break;
+            case R.id.switch_ratio_btn:
+                showChangeSizeDialog();
+                break;
+                default:
+        }
     }
 
     public static class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.MyViewHolder> implements View.OnClickListener {

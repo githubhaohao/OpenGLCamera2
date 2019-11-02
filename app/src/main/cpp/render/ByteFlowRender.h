@@ -7,6 +7,7 @@
 
 #include <SyncLock.h>
 #include "ByteFlowDef.h"
+#include "ImageDef.h"
 
 class ByteFlowRender
 {
@@ -29,6 +30,8 @@ public:
 	virtual int UnInit() = 0;
 
     virtual void UpdateFrame(uint8_t *pBuffer, int width, int height) = 0;
+
+	virtual void LoadLutImageData(int index, NativeImage *pImage) = 0;
 
     virtual void SetTransformMatrix(float translateX, float translateY, float scaleX, float scaleY, int degree, int mirror) = 0;
 
