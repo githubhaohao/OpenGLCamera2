@@ -55,7 +55,6 @@ public:
 	}
 
 private:
-
 	pthread_mutex_t m_mutex;
 	pthread_mutexattr_t m_attr;
 
@@ -85,6 +84,5 @@ public:
 private:
 	SyncLock *m_pLock;
 };
-
 
 #endif //BYTEFLOW_MYLOCK_H

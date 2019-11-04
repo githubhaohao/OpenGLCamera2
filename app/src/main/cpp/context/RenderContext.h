@@ -34,7 +34,7 @@ public:
 
 	int UnInit();
 
-	void UpdateFrame(uint8_t *pBuffer, int width, int height);
+	void UpdateFrame(int format, uint8_t *pBuffer, int width, int height);
 
 	void LoadLutImageData(int index, int format, int width, int height, uint8_t *pData);
 

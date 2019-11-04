@@ -18,7 +18,7 @@ public:
 	m_IsProgramChanged(false),
 	m_IsTextureDirty(false)
 	{
-
+		memset(&m_RenderFrame, 0, sizeof(NativeImage));
 	}
 
 	virtual ~ByteFlowRender()
@@ -29,9 +29,9 @@ public:
 	virtual int Init(int initType) = 0;
 	virtual int UnInit() = 0;
 
-    virtual void UpdateFrame(uint8_t *pBuffer, int width, int height) = 0;
+    virtual void UpdateFrame(NativeImage *pImage) = 0;
 
-	virtual void LoadLutImageData(int index, NativeImage *pImage) = 0;
+	virtual void LoadFilterImageData(int index, NativeImage *pImage) = 0;
 
     virtual void SetTransformMatrix(float translateX, float translateY, float scaleX, float scaleY, int degree, int mirror) = 0;
 
@@ -56,7 +56,7 @@ protected:
 	volatile bool   m_IsProgramChanged;
 	size_t          m_ViewportWidth;
 	size_t          m_ViewportHeight;
-	ByteFlowFrame   m_RenderBufFrame;
+	NativeImage     m_RenderFrame;
 	TransformMatrix m_TransformMatrix;
 
 	volatile bool   m_IsTextureDirty;

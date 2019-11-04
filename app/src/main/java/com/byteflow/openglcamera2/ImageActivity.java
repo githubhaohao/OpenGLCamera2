@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
+import static com.byteflow.openglcamera2.render.ByteFlowRender.IMAGE_FORMAT_I420;
 import static com.byteflow.openglcamera2.render.ByteFlowRender.IMAGE_FORMAT_RGBA;
 import static com.byteflow.openglcamera2.render.ByteFlowRender.PARAM_TYPE_SET_SHADER_INDEX;
 
@@ -41,7 +42,6 @@ public class ImageActivity extends BaseRenderActivity {
         mSurfaceViewRoot.addView(mGLSurfaceView, p);
 
         mByteFlowRender.init(mGLSurfaceView);
-        loadRGBAImage(R.drawable.lookup_vertigo, 0);
 
         String path = getIntent().getStringExtra("img_path");
         String camera_id = getIntent().getStringExtra("img_ort");
@@ -55,7 +55,7 @@ public class ImageActivity extends BaseRenderActivity {
     protected void onResume() {
         super.onResume();
         if (mByteFlowFrame != null) {
-            mByteFlowRender.setRenderFrame(mByteFlowFrame.getData(), mByteFlowFrame.getWidth(), mByteFlowFrame.getHeight());
+            mByteFlowRender.setRenderFrame(IMAGE_FORMAT_I420, mByteFlowFrame.getData(), mByteFlowFrame.getWidth(), mByteFlowFrame.getHeight());
             updateGLSurfaceViewSize(new Size(mByteFlowFrame.getWidth(), mByteFlowFrame.getHeight()));
             mByteFlowRender.requestRender();
         }
@@ -83,6 +83,21 @@ public class ImageActivity extends BaseRenderActivity {
             case SWIPE_RIGHT:
                 mCurrentShaderIndex++;
                 mCurrentShaderIndex = mCurrentShaderIndex % SHADER_NUM;
+                switch (mCurrentShaderIndex) {
+                    case LUT_A_SHADER_INDEX:
+                        loadRGBAImage(R.drawable.lut_a, 0);
+                        break;
+                    case LUT_B_SHADER_INDEX:
+                        loadRGBAImage(R.drawable.lut_b, 0);
+                        break;
+                    case LUT_C_SHADER_INDEX:
+                        loadRGBAImage(R.drawable.lut_c, 0);
+                        break;
+                    case LUT_D_SHADER_INDEX:
+                        loadRGBAImage(R.drawable.lut_d, 0);
+                        break;
+                    default:
+                }
                 mByteFlowRender.setParamsInt(PARAM_TYPE_SET_SHADER_INDEX, mCurrentShaderIndex);
                 mByteFlowRender.requestRender();
                 break;
@@ -90,6 +105,21 @@ public class ImageActivity extends BaseRenderActivity {
                 mCurrentShaderIndex--;
                 if (mCurrentShaderIndex < 0) {
                     mCurrentShaderIndex += SHADER_NUM;
+                }
+                switch (mCurrentShaderIndex) {
+                    case LUT_A_SHADER_INDEX:
+                        loadRGBAImage(R.drawable.lut_a, 0);
+                        break;
+                    case LUT_B_SHADER_INDEX:
+                        loadRGBAImage(R.drawable.lut_b, 0);
+                        break;
+                    case LUT_C_SHADER_INDEX:
+                        loadRGBAImage(R.drawable.lut_c, 0);
+                        break;
+                    case LUT_D_SHADER_INDEX:
+                        loadRGBAImage(R.drawable.lut_d, 0);
+                        break;
+                    default:
                 }
                 mByteFlowRender.setParamsInt(PARAM_TYPE_SET_SHADER_INDEX, mCurrentShaderIndex);
                 mByteFlowRender.requestRender();

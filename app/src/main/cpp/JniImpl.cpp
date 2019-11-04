@@ -3,7 +3,7 @@
 //
 #include <jni.h>
 #include <string>
-#include <ByteFlowRenderContext.h>
+#include <RenderContext.h>
 #include "util/LogUtil.h"
 
 #define CLASS_NAME_BYTEFLOW_RENDER "com/byteflow/openglcamera2/render/ByteFlowRender"
@@ -49,26 +49,26 @@ JNIEXPORT jint JNICALL native_UnInit(JNIEnv *env, jobject instance)
 /*
  * Class:     com_byteflow_openglcamera2_render_ByteFlowRender
  * Method:    native_UpdateFrame
- * Signature: ([BII)V
+ * Signature: (I[BII)V
  */
-JNIEXPORT void JNICALL native_UpdateFrame(JNIEnv *env, jobject instance, jbyteArray bytes, jint width, jint height)
+JNIEXPORT void JNICALL native_UpdateFrame(JNIEnv *env, jobject instance, jint format, jbyteArray bytes, jint width, jint height)
 {
 	int len = env->GetArrayLength (bytes);
 	unsigned char* buf = new unsigned char[len];
 	env->GetByteArrayRegion(bytes, 0, len, reinterpret_cast<jbyte*>(buf));
 
 	ByteFlowRenderContext *pContext = ByteFlowRenderContext::GetRenderContext(env, instance);
-	if(pContext) pContext->UpdateFrame(buf, width, height);
+	if(pContext) pContext->UpdateFrame(format, buf, width, height);
 
 	delete[] buf;
 }
 
 /*
  * Class:     com_byteflow_openglcamera2_render_ByteFlowRender
- * Method:    native_LoadLutData
+ * Method:    native_LoadFilterData
  * Signature: (IIII[B)V
  */
-JNIEXPORT void JNICALL native_LoadLutData
+JNIEXPORT void JNICALL native_LoadFilterData
 		(JNIEnv *env, jobject instance, jint index, jint format, jint width, jint height, jbyteArray imageData)
 {
 	int len = env->GetArrayLength (imageData);
@@ -157,8 +157,8 @@ static JNINativeMethod g_RenderMethods[] = {
 		{"native_DestroyContext",     "()V",       (void *)(native_DestroyContext)},
 		{"native_Init",               "(I)I",      (void *)(native_Init)},
 		{"native_UnInit",             "()I",       (void *)(native_UnInit)},
-		{"native_UpdateFrame",        "([BII)V",   (void *)(native_UpdateFrame)},
-		{"native_LoadLutData",        "(IIII[B)V", (void *)(native_LoadLutData)},
+		{"native_UpdateFrame",        "(I[BII)V",  (void *)(native_UpdateFrame)},
+		{"native_LoadFilterData",     "(IIII[B)V", (void *)(native_LoadFilterData)},
 		{"native_SetTransformMatrix", "(FFFFII)V", (void *)(native_SetTransformMatrix)},
 		{"native_SetParamsInt",       "(II)V",     (void *)(native_SetParamsInt)},
 		{"native_GetParamsInt",       "(I)I",      (void *)(native_GetParamsInt)},

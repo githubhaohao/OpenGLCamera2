@@ -23,10 +23,10 @@ add_library( # Sets the name of the library.
              SHARED
 
              # Provides a relative path to your source file(s).
-        src/main/cpp/ByteFlowRenderJniImpl.cpp
+        src/main/cpp/JniImpl.cpp
         src/main/cpp/render/GLByteFlowRender.cpp
         src/main/cpp/render/GLUtils.cpp
-        src/main/cpp/context/ByteFlowRenderContext.cpp
+        src/main/cpp/context/RenderContext.cpp
         )
 
 # Searches for a specified prebuilt library and stores the path as a

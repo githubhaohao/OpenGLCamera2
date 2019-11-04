@@ -4,7 +4,7 @@
 
 #include <GLByteFlowRender.h>
 #include <LogUtil.h>
-#include "ByteFlowRenderContext.h"
+#include "RenderContext.h"
 
 jfieldID ByteFlowRenderContext::s_ContextHandle = 0L;
 
@@ -106,9 +106,30 @@ int ByteFlowRenderContext::UnInit()
 	return m_pByteFlowRender->UnInit();
 }
 
-void ByteFlowRenderContext::UpdateFrame(uint8_t *pBuffer, int width, int height)
+void ByteFlowRenderContext::UpdateFrame(int format, uint8_t *pBuffer, int width, int height)
 {
-	m_pByteFlowRender->UpdateFrame(pBuffer, width, height);
+	LOGCATE("ByteFlowRenderContext::UpdateFrame format=%d, width=%d, height=%d, pData=%p",
+			format, width, height, pBuffer);
+	NativeImage nativeImage;
+	nativeImage.format = format;
+	nativeImage.width = width;
+	nativeImage.height = height;
+	nativeImage.ppPlane[0] = pBuffer;
+
+	switch (format)
+	{
+		case IMAGE_FORMAT_NV12:
+		case IMAGE_FORMAT_NV21:
+			nativeImage.ppPlane[1] = nativeImage.ppPlane[0] + width * height;
+			break;
+		case IMAGE_FORMAT_I420:
+			nativeImage.ppPlane[1] = nativeImage.ppPlane[0] + width * height;
+			nativeImage.ppPlane[2] = nativeImage.ppPlane[1] + width * height / 4;
+			break;
+		default:
+			break;
+	}
+	m_pByteFlowRender->UpdateFrame(&nativeImage);
 }
 
 void ByteFlowRenderContext::SetTransformMatrix(float translateX, float translateY, float scaleX, float scaleY, int degree, int mirror)
@@ -160,7 +181,8 @@ void ByteFlowRenderContext::OnDrawFrame()
 
 void ByteFlowRenderContext::LoadLutImageData(int index, int format, int width, int height, uint8_t *pData)
 {
-	LOGCATE("ByteFlowRenderContext::LoadLutImageData index=%d, format=%d, width=%d, height=%d, pData=%p", index, format, width, height, pData);
+	LOGCATE("ByteFlowRenderContext::LoadFilterImageData index=%d, format=%d, width=%d, height=%d, pData=%p",
+			index, format, width, height, pData);
 	NativeImage nativeImage;
 	nativeImage.format = format;
 	nativeImage.width = width;
@@ -181,7 +203,7 @@ void ByteFlowRenderContext::LoadLutImageData(int index, int format, int width, i
 			break;
 	}
 
-	m_pByteFlowRender->LoadLutImageData(index, &nativeImage);
+	m_pByteFlowRender->LoadFilterImageData(index, &nativeImage);
 }
 
 

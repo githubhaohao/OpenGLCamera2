@@ -19,6 +19,11 @@
 #define SCALE_CIRCLE_SHADER_INDEX     16
 #define ROTATE_CIRCLE_SHADER_INDEX    17
 #define DYNAMIC_GLITCH_SHADER_INDEX   18
+#define LUT_A_SHADER_INDEX            19
+#define LUT_B_SHADER_INDEX            20
+#define LUT_C_SHADER_INDEX            21
+#define LUT_D_SHADER_INDEX            22
+#define DOUYIN_SHADER_INDEX           23
 
 #define MAX_FRAME_NUM  30
 #define SKIP_FRAME_NUM 5
@@ -34,9 +39,9 @@ public:
 
 	virtual int UnInit();
 
-	virtual void UpdateFrame(uint8_t *pBuffer, int width, int height);
+	virtual void UpdateFrame(NativeImage *pImage);
 
-	virtual void LoadLutImageData(int index, NativeImage *pImage);
+	virtual void LoadFilterImageData(int index, NativeImage *pImage);
 
 	virtual void SetTransformMatrix(float translateX, float translateY, float scaleX, float scaleY, int degree, int mirror);
 
@@ -98,8 +103,11 @@ private:
 	int m_ShaderIndex;
 	volatile bool m_IsShaderChanged;
 
+	int m_PeriodicFrameIndex;
 	int m_FrameIndex;
 	NativeImage m_LutImage;
+	SyncLock m_SynLock;
+	volatile bool m_IsUpdateLutTexture;
 
 };
 

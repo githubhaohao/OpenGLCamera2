@@ -25,9 +25,9 @@ public abstract class ByteFlowRender {
 
     protected native int native_UnInit();
 
-    protected native void native_UpdateFrame(byte[] data, int width, int height);
+    protected native void native_UpdateFrame(int format, byte[] data, int width, int height);
 
-    protected native void native_LoadLutData(int index, int format, int width, int height, byte[] bytes);
+    protected native void native_LoadFilterData(int index, int format, int width, int height, byte[] bytes);
 
     protected native void native_SetTransformMatrix(float translateX, float translateY, float scaleX, float scaleY, int degree, int mirror);
 

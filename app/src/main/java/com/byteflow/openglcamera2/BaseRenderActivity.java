@@ -26,7 +26,11 @@ import static com.byteflow.openglcamera2.render.ByteFlowRender.IMAGE_FORMAT_RGBA
 
 public abstract class BaseRenderActivity extends AppCompatActivity implements MyGestureListener.SimpleGestureListener {
     private static final String TAG = "BaseRenderActivity";
-    protected static final int SHADER_NUM = 20;
+    protected static final int SHADER_NUM = 24;
+    protected static final int LUT_A_SHADER_INDEX = 19;
+    protected static final int LUT_B_SHADER_INDEX = 20;
+    protected static final int LUT_C_SHADER_INDEX = 21;
+    protected static final int LUT_D_SHADER_INDEX = 22;
     protected GLByteFlowRender mByteFlowRender;
     protected GLSurfaceView mGLSurfaceView;
     protected MyGestureListener mGestureDetector;

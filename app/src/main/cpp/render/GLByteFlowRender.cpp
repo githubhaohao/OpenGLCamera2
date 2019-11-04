@@ -50,19 +50,18 @@ GLByteFlowRender::GLByteFlowRender() :
 		m_MVPHandle(0),
 		m_MVPMatrix(1.0f),
 		m_ShaderIndex(0),
+		m_PeriodicFrameIndex(0),
 		m_FrameIndex(0)
 {
 	LOGCATE("GLByteFlowRender::GLByteFlowRender");
-	m_IsProgramChanged = true;
 	m_IsProgramChanged = false;
+	m_IsUpdateLutTexture = false;
 	memset(&m_LutImage, 0, sizeof(NativeImage));
 }
 
 GLByteFlowRender::~GLByteFlowRender()
 {
 	LOGCATE("GLByteFlowRender::~GLByteFlowRender");
-	NativeImageUtil::FreeNativeImage(&m_LutImage);
-
 }
 
 int GLByteFlowRender::Init(int initType)
@@ -88,13 +87,18 @@ int GLByteFlowRender::Init(int initType)
 	m_FragShaders.push_back(kFragmentShader17);
 	m_FragShaders.push_back(kFragmentShader18);
 	m_FragShaders.push_back(kFragmentShader19);
+	m_FragShaders.push_back(kFragmentShader19); //index = 20
+	m_FragShaders.push_back(kFragmentShader19); //index = 21
+	m_FragShaders.push_back(kFragmentShader19); //index = 22
+	m_FragShaders.push_back(kFragmentShader23);
 	return 0;
 }
 
 int GLByteFlowRender::UnInit()
 {
 	LOGCATE("GLByteFlowRender::UnInit");
-	ByteFlowFrameUtil::FreeFrame(&m_RenderBufFrame);
+	NativeImageUtil::FreeNativeImage(&m_RenderFrame);
+	NativeImageUtil::FreeNativeImage(&m_LutImage);
 	//DeleteTextures();
 	//GLUtils::DeleteProgram(m_Program);
 	m_FragShaders.clear();
@@ -102,32 +106,24 @@ int GLByteFlowRender::UnInit()
 	return 0;
 }
 
-void GLByteFlowRender::UpdateFrame(uint8_t *pBuffer, int width, int height)
+void GLByteFlowRender::UpdateFrame(NativeImage *pImage)
 {
 	LOGCATE("GLByteFlowRender::UpdateFrame");
-	ByteFlowFrame frame;
-	frame.width = width;
-	frame.height = height;
-	frame.yPitch = width;
-	frame.uPitch = width / 2;
-	frame.vPitch = width / 2;
-	frame.pYPlane = pBuffer;
-	frame.pUPlane = frame.pYPlane + width * height;
-	frame.pVPlane = frame.pUPlane + width * height / 4;
-
-	if (frame.width != m_RenderBufFrame.width || frame.height != m_RenderBufFrame.height)
+	if(pImage == nullptr) return;
+	if (pImage->width != m_RenderFrame.width || pImage->height != m_RenderFrame.height)
 	{
-		if (m_RenderBufFrame.pYPlane != NULL)
+		if (m_RenderFrame.ppPlane[0] != NULL)
 		{
-			ByteFlowFrameUtil::FreeFrame(&m_RenderBufFrame);
+			NativeImageUtil::FreeNativeImage(&m_RenderFrame);
 		}
-		memset(&m_RenderBufFrame, 0, sizeof(ByteFlowFrame));
-		m_RenderBufFrame.width = width;
-		m_RenderBufFrame.height = height;
-		ByteFlowFrameUtil::AllocFrame(&m_RenderBufFrame);
+		memset(&m_RenderFrame, 0, sizeof(NativeImage));
+		m_RenderFrame.width = pImage->width;
+		m_RenderFrame.height = pImage->height;
+		m_RenderFrame.format = pImage->format;
+		NativeImageUtil::AllocNativeImage(&m_RenderFrame);
 	}
 
-	ByteFlowFrameUtil::CopyFrame(&frame, &m_RenderBufFrame);
+	NativeImageUtil::CopyNativeImage(pImage, &m_RenderFrame);
 
 }
 
@@ -159,8 +155,8 @@ int GLByteFlowRender::GetShaderIndex()
 bool GLByteFlowRender::CreateTextures()
 {
 	LOGCATE("GLByteFlowRender::CreateTextures");
-	GLsizei yWidth = static_cast<GLsizei>(m_RenderBufFrame.yPitch);
-	GLsizei yHeight = static_cast<GLsizei>(m_RenderBufFrame.height);
+	GLsizei yWidth = static_cast<GLsizei>(m_RenderFrame.width);
+	GLsizei yHeight = static_cast<GLsizei>(m_RenderFrame.height);
 
 	glActiveTexture(GL_TEXTURE0);
 	glGenTextures(1, &m_YTextureId);
@@ -178,7 +174,7 @@ bool GLByteFlowRender::CreateTextures()
 		return false;
 	}
 
-	GLsizei uWidth = static_cast<GLsizei>(m_RenderBufFrame.uPitch);
+	GLsizei uWidth = static_cast<GLsizei>(m_RenderFrame.width / 2);
 	GLsizei uHeight = yHeight / 2;
 
 	glActiveTexture(GL_TEXTURE1);
@@ -197,7 +193,7 @@ bool GLByteFlowRender::CreateTextures()
 		return false;
 	}
 
-	GLsizei vWidth = static_cast<GLsizei>(m_RenderBufFrame.vPitch);
+	GLsizei vWidth = static_cast<GLsizei>(m_RenderFrame.width / 2);
 	GLsizei vHeight = (GLsizei) yHeight / 2;
 
 	glActiveTexture(GL_TEXTURE2);
@@ -222,7 +218,7 @@ bool GLByteFlowRender::CreateTextures()
 bool GLByteFlowRender::UpdateTextures()
 {
 	LOGCATE("GLByteFlowRender::UpdateTextures");
-	if (m_RenderBufFrame.pYPlane == NULL)
+	if (m_RenderFrame.ppPlane[0] == NULL)
 	{
 		return false;
 	}
@@ -234,24 +230,29 @@ bool GLByteFlowRender::UpdateTextures()
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_YTextureId);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, (GLsizei) m_RenderBufFrame.width,
-				 (GLsizei) m_RenderBufFrame.height, 0,
-				 GL_LUMINANCE, GL_UNSIGNED_BYTE, m_RenderBufFrame.pYPlane);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, (GLsizei) m_RenderFrame.width,
+				 (GLsizei) m_RenderFrame.height, 0,
+				 GL_LUMINANCE, GL_UNSIGNED_BYTE, m_RenderFrame.ppPlane[0]);
 
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, m_UTextureId);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, (GLsizei) m_RenderBufFrame.width >> 1,
-				 (GLsizei) m_RenderBufFrame.height >> 1, 0,
-				 GL_LUMINANCE, GL_UNSIGNED_BYTE, m_RenderBufFrame.pUPlane);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, (GLsizei) m_RenderFrame.width >> 1,
+				 (GLsizei) m_RenderFrame.height >> 1, 0,
+				 GL_LUMINANCE, GL_UNSIGNED_BYTE, m_RenderFrame.ppPlane[1]);
 
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, m_VTextureId);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, (GLsizei) m_RenderBufFrame.width >> 1,
-				 (GLsizei) m_RenderBufFrame.height >> 1, 0,
-				 GL_LUMINANCE, GL_UNSIGNED_BYTE, m_RenderBufFrame.pVPlane);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, (GLsizei) m_RenderFrame.width >> 1,
+				 (GLsizei) m_RenderFrame.height >> 1, 0,
+				 GL_LUMINANCE, GL_UNSIGNED_BYTE, m_RenderFrame.ppPlane[2]);
 
-	if (m_LutImage.ppPlane[0] && !m_LutTextureId)
+	ByteFlowLock lock(&m_SynLock);
+	if (m_IsUpdateLutTexture && m_LutImage.ppPlane[0])
 	{
+		if(m_LutTextureId)
+		{
+			glDeleteTextures(1, &m_LutTextureId);
+		}
 		glActiveTexture(GL_TEXTURE3);
 		glGenTextures(1, &m_LutTextureId);
 		glBindTexture(GL_TEXTURE_2D, m_LutTextureId);
@@ -261,6 +262,7 @@ bool GLByteFlowRender::UpdateTextures()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_LutImage.width, m_LutImage.height, 0, GL_RGBA,
 					 GL_UNSIGNED_BYTE, m_LutImage.ppPlane[0]);
+		m_IsUpdateLutTexture = false;
 	}
 
 	return true;
@@ -341,7 +343,8 @@ void GLByteFlowRender::OnDrawFrame()
 		return;
 	}
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	m_FrameIndex++;
+	m_PeriodicFrameIndex++;
+	m_FrameIndex ++;
 	//glDrawArrays(GL_TRIANGLES, 0, m_FragCoors.nCoorsCount);
 
 }
@@ -393,7 +396,7 @@ void GLByteFlowRender::UpdateMVPMatrix(glm::mat4 &mat4Matrix, TransformMatrix &t
 		}
 	}
 
-	float ratio = (float) m_RenderBufFrame.width / m_RenderBufFrame.height;
+	float ratio = (float) m_RenderFrame.width / m_RenderFrame.height;
 	glm::mat4 Projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 1.0f);
 	//glm::mat4 Projection = glm::frustum(-ratio, ratio, -1.0f, 1.0f, 4.0f, 100.0f);
 	//glm::mat4 Projection = glm::perspective(45.0f,4.0f/3.0f,0.1f,100.f);
@@ -498,15 +501,15 @@ int GLByteFlowRender::CreateProgram(const char *pVertexShaderSource, const char 
 
 float GLByteFlowRender::GetFrameProgress()
 {
-	float progress = m_FrameIndex * 1.0f / MAX_FRAME_NUM;
+	float progress = m_PeriodicFrameIndex * 1.0f / MAX_FRAME_NUM;
 	if (progress > 1)
 	{
 		progress = 0;
 	}
 
-	if (m_FrameIndex > MAX_FRAME_NUM + SKIP_FRAME_NUM)
+	if (m_PeriodicFrameIndex > MAX_FRAME_NUM + SKIP_FRAME_NUM)
 	{
-		m_FrameIndex = 0;
+		m_PeriodicFrameIndex = 0;
 	}
 	return progress;
 }
@@ -546,7 +549,7 @@ void GLByteFlowRender::SetShaderProgramDynamicAttrib(int shaderIndex)
 			break;
 		case DYNAMIC_GLITCH_SHADER_INDEX:
 		{
-			int seqIndex = m_FrameIndex % 9;
+			int seqIndex = m_PeriodicFrameIndex % 9;
 			if (m_ScanLineJitterHandle >= 0)
 			{
 				glUniform2f(m_ScanLineJitterHandle, JITTER_SEQ[seqIndex], THRESHHOLD_SEQ[seqIndex]);
@@ -557,6 +560,15 @@ void GLByteFlowRender::SetShaderProgramDynamicAttrib(int shaderIndex)
 			}
 		}
 			break;
+		case DOUYIN_SHADER_INDEX:
+		{
+			if (m_OffsetHandle >= 0)
+			{
+
+				float offset = (sin(m_FrameIndex * MATH_PI / 40) + 1.0f) / 2.0f;
+				glUniform1f(m_OffsetHandle, offset);
+			}
+		}
 		default:
 			break;
 	}
@@ -566,21 +578,23 @@ void GLByteFlowRender::SetShaderProgramDynamicAttrib(int shaderIndex)
 	if (m_TextureSizeHandle >= 0)
 	{
 		GLfloat size[2];
-		size[0] = m_RenderBufFrame.width;
-		size[1] = m_RenderBufFrame.height;
+		size[0] = m_RenderFrame.width;
+		size[1] = m_RenderFrame.height;
 		glUniform2fv(m_TextureSizeHandle, 1, &size[0]);
 	}
 
 }
 
-void GLByteFlowRender::LoadLutImageData(int index, NativeImage *pImage)
+void GLByteFlowRender::LoadFilterImageData(int index, NativeImage *pImage)
 {
-	LOGCATE("GLByteFlowRender::LoadLutImageData pImage = %p, index=%d", pImage->ppPlane[0], index);
+	LOGCATE("GLByteFlowRender::LoadFilterImageData pImage = %p, index=%d", pImage->ppPlane[0], index);
 	if (pImage)
 	{
+		ByteFlowLock lock(&m_SynLock);
 		m_LutImage.width = pImage->width;
 		m_LutImage.height = pImage->height;
 		m_LutImage.format = pImage->format;
 		NativeImageUtil::CopyNativeImage(pImage, &m_LutImage);
+		m_IsUpdateLutTexture = true;
 	}
 }

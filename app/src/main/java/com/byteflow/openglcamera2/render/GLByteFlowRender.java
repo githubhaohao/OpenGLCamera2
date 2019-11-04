@@ -35,9 +35,9 @@ public class GLByteFlowRender extends ByteFlowRender implements GLSurfaceView.Re
         native_SetTransformMatrix(0, 0, 1, 1, degree, mirror);
     }
 
-    public void setRenderFrame(byte[] data, int width, int height) {
+    public void setRenderFrame(int format, byte[] data, int width, int height) {
         Log.d(TAG, "setRenderFrame() called with: data = [" + data + "], width = [" + width + "], height = [" + height + "]");
-        native_UpdateFrame(data, width, height);
+        native_UpdateFrame(format,data, width, height);
     }
 
     public void setParamsInt(int paramType, int param) {
@@ -49,7 +49,7 @@ public class GLByteFlowRender extends ByteFlowRender implements GLSurfaceView.Re
     }
 
     public void loadLutImage(int index, int format, int width, int height, byte[] bytes) {
-        native_LoadLutData(index, format, width, height, bytes);
+        native_LoadFilterData(index, format, width, height, bytes);
     }
 
     @Override
