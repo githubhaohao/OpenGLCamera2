@@ -29,6 +29,8 @@ public abstract class ByteFlowRender {
 
     protected native void native_LoadFilterData(int index, int format, int width, int height, byte[] bytes);
 
+    protected native void native_LoadShaderScript(int shaderIndex, String scriptStr);
+
     protected native void native_SetTransformMatrix(float translateX, float translateY, float scaleX, float scaleY, int degree, int mirror);
 
     protected native void native_SetParamsInt(int paramType, int value);

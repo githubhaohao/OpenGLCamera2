@@ -33,6 +33,8 @@ public:
 
 	virtual void LoadFilterImageData(int index, NativeImage *pImage) = 0;
 
+	virtual void LoadFragShaderScript(int shaderIndex, char *pShaderStr, int strLen) = 0;
+
     virtual void SetTransformMatrix(float translateX, float translateY, float scaleX, float scaleY, int degree, int mirror) = 0;
 
     virtual void SetShaderIndex(int shaderIndex) = 0;

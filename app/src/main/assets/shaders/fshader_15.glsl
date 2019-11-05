@@ -20,5 +20,5 @@ vec4 YuvToRgb(vec2 uv) {
 void main()
 {
     vec4 originColor = YuvToRgb(v_texcoord);
-    gl_FragColor = vec4(originColor.r + u_offset, originColor.g + u_offset, originColor.b + u_offset, originColor.a);
+    gl_FragColor = vec4(originColor.r, originColor.g + u_offset, originColor.b, originColor.a);
 }

@@ -42,7 +42,7 @@ public class ImageActivity extends BaseRenderActivity {
         mSurfaceViewRoot.addView(mGLSurfaceView, p);
 
         mByteFlowRender.init(mGLSurfaceView);
-
+        mByteFlowRender.loadShaderFromAssetsFile(mCurrentShaderIndex, getResources());
         String path = getIntent().getStringExtra("img_path");
         String camera_id = getIntent().getStringExtra("img_ort");
         Log.d(TAG, "onCreate() called with: path = [" + path + "]");
@@ -98,7 +98,14 @@ public class ImageActivity extends BaseRenderActivity {
                         break;
                     default:
                 }
-                mByteFlowRender.setParamsInt(PARAM_TYPE_SET_SHADER_INDEX, mCurrentShaderIndex);
+
+                if (LUT_A_SHADER_INDEX <= mCurrentShaderIndex && mCurrentShaderIndex <= LUT_D_SHADER_INDEX) {
+                    mByteFlowRender.loadShaderFromAssetsFile(LUT_A_SHADER_INDEX, getResources());
+                } else {
+                    mByteFlowRender.loadShaderFromAssetsFile(mCurrentShaderIndex, getResources());
+                }
+
+                //mByteFlowRender.setParamsInt(PARAM_TYPE_SET_SHADER_INDEX, mCurrentShaderIndex);
                 mByteFlowRender.requestRender();
                 break;
             case SWIPE_LEFT:
@@ -121,7 +128,12 @@ public class ImageActivity extends BaseRenderActivity {
                         break;
                     default:
                 }
-                mByteFlowRender.setParamsInt(PARAM_TYPE_SET_SHADER_INDEX, mCurrentShaderIndex);
+                if (LUT_A_SHADER_INDEX <= mCurrentShaderIndex && mCurrentShaderIndex <= LUT_D_SHADER_INDEX) {
+                    mByteFlowRender.loadShaderFromAssetsFile(LUT_A_SHADER_INDEX, getResources());
+                } else {
+                    mByteFlowRender.loadShaderFromAssetsFile(mCurrentShaderIndex, getResources());
+                }
+                //mByteFlowRender.setParamsInt(PARAM_TYPE_SET_SHADER_INDEX, mCurrentShaderIndex);
                 mByteFlowRender.requestRender();
                 break;
             default:

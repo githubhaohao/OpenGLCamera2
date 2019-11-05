@@ -21,8 +21,8 @@ vec4 YuvToRgb(vec2 uv) {
 void main()
 {
     vec2 imgTexCoord = v_texcoord * texSize;
-    float sideLength = texSize.x / 6.0;
-    float maxOffset = 0.2 * sideLength;
+    float sideLength = texSize.y / 6.0;
+    float maxOffset = 0.15 * sideLength;
     float x = mod(imgTexCoord.x, floor(sideLength));
     float y = mod(imgTexCoord.y, floor(sideLength));
 

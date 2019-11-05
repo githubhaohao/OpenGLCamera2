@@ -206,5 +206,12 @@ void ByteFlowRenderContext::LoadLutImageData(int index, int format, int width, i
 	m_pByteFlowRender->LoadFilterImageData(index, &nativeImage);
 }
 
+void ByteFlowRenderContext::LoadFragShaderScript(int shaderIndex, char *pShaderStr, int strLen)
+{
+	LOGCATE("ByteFlowRenderContext::LoadFragShaderScript shaderIndex = %d, pShaderStr = %s, strLen = %d", shaderIndex, pShaderStr, strLen);
+	m_pByteFlowRender->LoadFragShaderScript(shaderIndex, pShaderStr, strLen);
+
+}
+
 
 

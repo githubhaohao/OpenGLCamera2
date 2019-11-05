@@ -82,6 +82,24 @@ JNIEXPORT void JNICALL native_LoadFilterData
 
 /*
  * Class:     com_byteflow_openglcamera2_render_ByteFlowRender
+ * Method:    native_LoadShaderScript
+ * Signature: (ILjava/lang/String;)V
+ */
+JNIEXPORT void JNICALL native_LoadShaderScript
+		(JNIEnv *env, jobject instance, jint shaderIndex, jstring script)
+{
+	int length = env->GetStringUTFLength(script);
+	const char* cStr = env->GetStringUTFChars(script, JNI_FALSE);
+	char *buf = static_cast<char *>(malloc(length + 1));
+	memcpy(buf, cStr, length + 1);
+	ByteFlowRenderContext *pContext = ByteFlowRenderContext::GetRenderContext(env, instance);
+	if(pContext) pContext->LoadFragShaderScript(shaderIndex, buf, length + 1);
+	free(buf);
+	env->ReleaseStringUTFChars(script, cStr);
+}
+
+/*
+ * Class:     com_byteflow_openglcamera2_render_ByteFlowRender
  * Method:    native_SetTransformMatrix
  * Signature: (FFFFII)V
  */
@@ -153,18 +171,19 @@ JNIEXPORT void JNICALL native_OnDrawFrame(JNIEnv *env, jobject instance)
 #endif
 
 static JNINativeMethod g_RenderMethods[] = {
-		{"native_CreateContext",      "(I)V",      (void *)(native_CreateContext)},
-		{"native_DestroyContext",     "()V",       (void *)(native_DestroyContext)},
-		{"native_Init",               "(I)I",      (void *)(native_Init)},
-		{"native_UnInit",             "()I",       (void *)(native_UnInit)},
-		{"native_UpdateFrame",        "(I[BII)V",  (void *)(native_UpdateFrame)},
-		{"native_LoadFilterData",     "(IIII[B)V", (void *)(native_LoadFilterData)},
-		{"native_SetTransformMatrix", "(FFFFII)V", (void *)(native_SetTransformMatrix)},
-		{"native_SetParamsInt",       "(II)V",     (void *)(native_SetParamsInt)},
-		{"native_GetParamsInt",       "(I)I",      (void *)(native_GetParamsInt)},
-		{"native_OnSurfaceCreated",   "()V",       (void *)(native_OnSurfaceCreated)},
-		{"native_OnSurfaceChanged",   "(II)V",     (void *)(native_OnSurfaceChanged)},
-		{"native_OnDrawFrame",        "()V",       (void *)(native_OnDrawFrame)},
+		{"native_CreateContext",      "(I)V",                   (void *)(native_CreateContext)},
+		{"native_DestroyContext",     "()V",                    (void *)(native_DestroyContext)},
+		{"native_Init",               "(I)I",                   (void *)(native_Init)},
+		{"native_UnInit",             "()I",                    (void *)(native_UnInit)},
+		{"native_UpdateFrame",        "(I[BII)V",               (void *)(native_UpdateFrame)},
+		{"native_LoadFilterData",     "(IIII[B)V",              (void *)(native_LoadFilterData)},
+		{"native_LoadShaderScript",   "(ILjava/lang/String;)V", (void *)(native_LoadShaderScript)},
+		{"native_SetTransformMatrix", "(FFFFII)V",              (void *)(native_SetTransformMatrix)},
+		{"native_SetParamsInt",       "(II)V",                  (void *)(native_SetParamsInt)},
+		{"native_GetParamsInt",       "(I)I",                   (void *)(native_GetParamsInt)},
+		{"native_OnSurfaceCreated",   "()V",                    (void *)(native_OnSurfaceCreated)},
+		{"native_OnSurfaceChanged",   "(II)V",                  (void *)(native_OnSurfaceChanged)},
+		{"native_OnDrawFrame",        "()V",                    (void *)(native_OnDrawFrame)},
 };
 
 static int RegisterNativeMethods(JNIEnv *env, const char *className, JNINativeMethod *methods, int methodNum)
@@ -198,8 +217,6 @@ static void UnregisterNativeMethods(JNIEnv *env, const char *className)
 
 extern "C" jint JNI_OnLoad(JavaVM *jvm, void *p)
 {
-	LOGCATE("================ JNI_OnLoad ================");
-
 	jint jniRet = JNI_ERR;
 	JNIEnv *env = NULL;
 	if (jvm->GetEnv((void **) (&env), JNI_VERSION_1_6) != JNI_OK)

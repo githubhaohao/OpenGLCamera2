@@ -38,6 +38,8 @@ public:
 
 	void LoadLutImageData(int index, int format, int width, int height, uint8_t *pData);
 
+	void LoadFragShaderScript(int shaderIndex, char *pShaderStr, int strLen);
+
 	void SetTransformMatrix(float translateX, float translateY, float scaleX, float scaleY, int degree, int mirror);
 
 	void SetParamsInt(int paramType, int param);

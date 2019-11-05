@@ -43,6 +43,8 @@ public:
 
 	virtual void LoadFilterImageData(int index, NativeImage *pImage);
 
+	virtual void LoadFragShaderScript(int shaderIndex, char *pShaderStr, int strLen);
+
 	virtual void SetTransformMatrix(float translateX, float translateY, float scaleX, float scaleY, int degree, int mirror);
 
 	virtual void SetShaderIndex(int shaderIndex);
@@ -99,7 +101,7 @@ private:
 	GLint m_OffsetHandle;
 	GLint m_MVPHandle;
 
-	std::vector<const char *> m_FragShaders;
+//	std::vector<const char *> m_FragShaders;
 	int m_ShaderIndex;
 	volatile bool m_IsShaderChanged;
 
@@ -108,6 +110,9 @@ private:
 	NativeImage m_LutImage;
 	SyncLock m_SynLock;
 	volatile bool m_IsUpdateLutTexture;
+
+	char *m_pFragShaderBuf;
+	SyncLock m_ShaderBufLock;
 
 };
 

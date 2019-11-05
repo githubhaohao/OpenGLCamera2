@@ -51,11 +51,12 @@ GLByteFlowRender::GLByteFlowRender() :
 		m_MVPMatrix(1.0f),
 		m_ShaderIndex(0),
 		m_PeriodicFrameIndex(0),
-		m_FrameIndex(0)
+		m_FrameIndex(-1)
 {
 	LOGCATE("GLByteFlowRender::GLByteFlowRender");
 	m_IsProgramChanged = false;
 	m_IsUpdateLutTexture = false;
+	m_pFragShaderBuf = nullptr;
 	memset(&m_LutImage, 0, sizeof(NativeImage));
 }
 
@@ -67,30 +68,30 @@ GLByteFlowRender::~GLByteFlowRender()
 int GLByteFlowRender::Init(int initType)
 {
 	LOGCATE("GLByteFlowRender::Init");
-	m_FragShaders.push_back(kFragmentShader0);
-	m_FragShaders.push_back(kFragmentShader1);
-	m_FragShaders.push_back(kFragmentShader2);
-	m_FragShaders.push_back(kFragmentShader3);
-	m_FragShaders.push_back(kFragmentShader4);
-	m_FragShaders.push_back(kFragmentShader5);
-	m_FragShaders.push_back(kFragmentShader6);
-	m_FragShaders.push_back(kFragmentShader7);
-	m_FragShaders.push_back(kFragmentShader8);
-	m_FragShaders.push_back(kFragmentShader9);
-	m_FragShaders.push_back(kFragmentShader10);
-	m_FragShaders.push_back(kFragmentShader11);
-	m_FragShaders.push_back(kFragmentShader12);
-	m_FragShaders.push_back(kFragmentShader13);
-	m_FragShaders.push_back(kFragmentShader14);
-	m_FragShaders.push_back(kFragmentShader15);
-	m_FragShaders.push_back(kFragmentShader16);
-	m_FragShaders.push_back(kFragmentShader17);
-	m_FragShaders.push_back(kFragmentShader18);
-	m_FragShaders.push_back(kFragmentShader19);
-	m_FragShaders.push_back(kFragmentShader19); //index = 20
-	m_FragShaders.push_back(kFragmentShader19); //index = 21
-	m_FragShaders.push_back(kFragmentShader19); //index = 22
-	m_FragShaders.push_back(kFragmentShader23);
+//	m_FragShaders.push_back(kFragmentShader0);
+//	m_FragShaders.push_back(kFragmentShader1);
+//	m_FragShaders.push_back(kFragmentShader2);
+//	m_FragShaders.push_back(kFragmentShader3);
+//	m_FragShaders.push_back(kFragmentShader4);
+//	m_FragShaders.push_back(kFragmentShader5);
+//	m_FragShaders.push_back(kFragmentShader6);
+//	m_FragShaders.push_back(kFragmentShader7);
+//	m_FragShaders.push_back(kFragmentShader8);
+//	m_FragShaders.push_back(kFragmentShader9);
+//	m_FragShaders.push_back(kFragmentShader10);
+//	m_FragShaders.push_back(kFragmentShader11);
+//	m_FragShaders.push_back(kFragmentShader12);
+//	m_FragShaders.push_back(kFragmentShader13);
+//	m_FragShaders.push_back(kFragmentShader14);
+//	m_FragShaders.push_back(kFragmentShader15);
+//	m_FragShaders.push_back(kFragmentShader16);
+//	m_FragShaders.push_back(kFragmentShader17);
+//	m_FragShaders.push_back(kFragmentShader18);
+//	m_FragShaders.push_back(kFragmentShader19);
+//	m_FragShaders.push_back(kFragmentShader19); //index = 20
+//	m_FragShaders.push_back(kFragmentShader19); //index = 21
+//	m_FragShaders.push_back(kFragmentShader19); //index = 22
+//	m_FragShaders.push_back(kFragmentShader23);
 	return 0;
 }
 
@@ -101,7 +102,13 @@ int GLByteFlowRender::UnInit()
 	NativeImageUtil::FreeNativeImage(&m_LutImage);
 	//DeleteTextures();
 	//GLUtils::DeleteProgram(m_Program);
-	m_FragShaders.clear();
+	//m_FragShaders.clear();
+
+	if(m_pFragShaderBuf)
+	{
+		free(m_pFragShaderBuf);
+		m_pFragShaderBuf = nullptr;
+	}
 
 	return 0;
 }
@@ -315,10 +322,22 @@ void GLByteFlowRender::OnSurfaceCreated()
 	int nMaxTextureSize = 0;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &nMaxTextureSize);
 	LOGCATE("GLByteFlowRender::OnSurfaceCreated GL_MAX_TEXTURE_SIZE = %d", nMaxTextureSize);
-	if (!CreateProgram(kVertexShader, m_FragShaders.at(m_ShaderIndex)))
+	ByteFlowLock lock(&m_ShaderBufLock);
+	if (m_pFragShaderBuf != nullptr)
 	{
-		LOGCATE("GLByteFlowRender::OnSurfaceCreated create program fail.");
+		if (!CreateProgram(kVertexShader, m_pFragShaderBuf))
+		{
+			LOGCATE("GLByteFlowRender::OnSurfaceCreated create program fail.");
+		}
 	}
+	else
+	{
+		if (!CreateProgram(kVertexShader, kFragmentShader0))
+		{
+			LOGCATE("GLByteFlowRender::OnSurfaceCreated create program fail.");
+		}
+	}
+
 }
 
 void GLByteFlowRender::OnSurfaceChanged(int width, int height)
@@ -346,7 +365,6 @@ void GLByteFlowRender::OnDrawFrame()
 	m_PeriodicFrameIndex++;
 	m_FrameIndex ++;
 	//glDrawArrays(GL_TRIANGLES, 0, m_FragCoors.nCoorsCount);
-
 }
 
 void GLByteFlowRender::UpdateMVPMatrix(glm::mat4 &mat4Matrix, TransformMatrix &transformMatrix)
@@ -426,10 +444,11 @@ void GLByteFlowRender::UpdateMVPMatrix(glm::mat4 &mat4Matrix, TransformMatrix &t
 GLuint GLByteFlowRender::UseProgram()
 {
 	LOGCATE("GLByteFlowRender::UseProgram");
+	ByteFlowLock lock(&m_ShaderBufLock);
 	if (m_IsShaderChanged)
 	{
 		GLUtils::DeleteProgram(m_Program);
-		CreateProgram(kVertexShader, m_FragShaders.at(m_ShaderIndex));
+		CreateProgram(kVertexShader, m_pFragShaderBuf);
 		m_IsShaderChanged = false;
 		m_IsProgramChanged = true;
 	}
@@ -596,5 +615,23 @@ void GLByteFlowRender::LoadFilterImageData(int index, NativeImage *pImage)
 		m_LutImage.format = pImage->format;
 		NativeImageUtil::CopyNativeImage(pImage, &m_LutImage);
 		m_IsUpdateLutTexture = true;
+	}
+}
+
+void GLByteFlowRender::LoadFragShaderScript(int shaderIndex, char *pShaderStr, int strLen)
+{
+	LOGCATE("GLByteFlowRender::LoadFragShaderScript pShaderStr = %p, shaderIndex=%d", pShaderStr, shaderIndex);
+	if(m_FrameIndex != shaderIndex)
+	{
+		ByteFlowLock lock(&m_ShaderBufLock);
+		if(m_pFragShaderBuf)
+		{
+			free(m_pFragShaderBuf);
+			m_pFragShaderBuf = nullptr;
+		}
+		m_ShaderIndex = shaderIndex;
+		m_pFragShaderBuf = static_cast<char *>(malloc(strLen));
+		memcpy(m_pFragShaderBuf, pShaderStr, strLen);
+		m_IsShaderChanged = true;
 	}
 }

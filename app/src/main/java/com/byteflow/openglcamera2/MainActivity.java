@@ -187,6 +187,7 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
                 RelativeLayout.LayoutParams.MATCH_PARENT);
         mSurfaceViewRoot.addView(mGLSurfaceView, p);
         mByteFlowRender.init(mGLSurfaceView);
+        mByteFlowRender.loadShaderFromAssetsFile(mCurrentShaderIndex, getResources());
 
         mCamera2Wrapper = new Camera2Wrapper(this);
         mCamera2Wrapper.setDefaultPreviewSize(getScreenSize());
@@ -291,6 +292,7 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
         resolutionsListView.setLayoutManager(manager);
 
         resolutionsListView.setAdapter(myPreviewSizeViewAdapter);
+        resolutionsListView.scrollToPosition(previewSizeSelectedIndex);
 
         RadioGroup radioGroup = rootView.findViewById(R.id.radio_group);
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -303,11 +305,13 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
                     ((RadioButton) rootView.findViewById(R.id.capture_size_btn)).setTextColor(getColor(R.color.colorAccent));
                     ((RadioButton) rootView.findViewById(R.id.preview_size_btn)).setTextColor(getColor(R.color.colorText));
                     resolutionsListView.setAdapter(myCaptureSizeViewAdapter);
+                    resolutionsListView.scrollToPosition(myCaptureSizeViewAdapter.getSelectIndex());
 
                 } else {
                     ((RadioButton) rootView.findViewById(R.id.capture_size_btn)).setTextColor(getColor(R.color.colorText));
                     ((RadioButton) rootView.findViewById(R.id.preview_size_btn)).setTextColor(getColor(R.color.colorAccent));
                     resolutionsListView.setAdapter(myPreviewSizeViewAdapter);
+                    resolutionsListView.scrollToPosition(myPreviewSizeViewAdapter.getSelectIndex());
                 }
             }
         });
@@ -343,7 +347,14 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
                         break;
                         default:
                 }
-                mByteFlowRender.setParamsInt(PARAM_TYPE_SET_SHADER_INDEX, mCurrentShaderIndex);
+
+                if (LUT_A_SHADER_INDEX <= mCurrentShaderIndex && mCurrentShaderIndex <= LUT_D_SHADER_INDEX) {
+                    mByteFlowRender.loadShaderFromAssetsFile(LUT_A_SHADER_INDEX, getResources());
+                } else {
+                    mByteFlowRender.loadShaderFromAssetsFile(mCurrentShaderIndex, getResources());
+                }
+
+                //mByteFlowRender.setParamsInt(PARAM_TYPE_SET_SHADER_INDEX, mCurrentShaderIndex);
                 break;
             case SWIPE_LEFT:
                 mCurrentShaderIndex--;
@@ -365,7 +376,14 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
                         break;
                     default:
                 }
-                mByteFlowRender.setParamsInt(PARAM_TYPE_SET_SHADER_INDEX, mCurrentShaderIndex);
+
+                if (LUT_A_SHADER_INDEX <= mCurrentShaderIndex && mCurrentShaderIndex <= LUT_D_SHADER_INDEX) {
+                    mByteFlowRender.loadShaderFromAssetsFile(LUT_A_SHADER_INDEX, getResources());
+                } else {
+                    mByteFlowRender.loadShaderFromAssetsFile(mCurrentShaderIndex, getResources());
+                }
+
+                //mByteFlowRender.setParamsInt(PARAM_TYPE_SET_SHADER_INDEX, mCurrentShaderIndex);
                 break;
             default:
                 break;

@@ -1,9 +1,11 @@
 #version 100
+
 precision highp float;
 varying vec2 v_texcoord;
 uniform lowp sampler2D s_textureY;
 uniform lowp sampler2D s_textureU;
 uniform lowp sampler2D s_textureV;
+uniform vec2 texSize;
 vec4 YuvToRgb(vec2 uv) {
     float y, u, v, r, g, b;
     y = texture2D(s_textureY, uv).r;
@@ -17,12 +19,21 @@ vec4 YuvToRgb(vec2 uv) {
     return vec4(r, g, b, 1.0);
 }
 void main() {
-    vec4 sample0, sample1, sample2, sample3;
-    float blurStep = 0.5;
-    float step = blurStep / 100.0;
-    sample0 = YuvToRgb(vec2(v_texcoord.x - step, v_texcoord.y - step));
-    sample1 = YuvToRgb(vec2(v_texcoord.x + step, v_texcoord.y + step));
-    sample2 = YuvToRgb(vec2(v_texcoord.x + step, v_texcoord.y - step));
-    sample3 = YuvToRgb(vec2(v_texcoord.x - step, v_texcoord.y + step));
-    gl_FragColor = (sample0 + sample1 + sample2 + sample3) / 4.0;
+    vec2 pos = v_texcoord.xy;
+    vec2 onePixel = vec2(1, 1) / texSize;
+    vec4 color = vec4(0);
+    mat3 edgeDetectionKernel = mat3(
+    -1, -1, -1,
+    -1, 8, -1,
+    -1, -1, -1
+    );
+    for(int i = 0; i < 3; i++) {
+        for(int j = 0; j < 3; j++) {
+            vec2 samplePos = pos + vec2(i - 1 , j - 1) * onePixel;
+            vec4 sampleColor = YuvToRgb(samplePos);
+            sampleColor *= edgeDetectionKernel[i][j];
+            color += sampleColor;
+        }
+    }
+    gl_FragColor = vec4(color.rgb, 1.0);
 }
