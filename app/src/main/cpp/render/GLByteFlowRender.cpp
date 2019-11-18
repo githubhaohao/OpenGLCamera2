@@ -177,7 +177,7 @@ bool GLByteFlowRender::CreateTextures()
 
 	if (!m_YTextureId)
 	{
-		GLUtils::CheckGLError("Create Y texture");
+		GLUtils::CheckGLError("GLByteFlowRender::CreateTextures Create Y texture");
 		return false;
 	}
 
@@ -196,7 +196,7 @@ bool GLByteFlowRender::CreateTextures()
 
 	if (!m_UTextureId)
 	{
-		GLUtils::CheckGLError("Create U texture");
+		GLUtils::CheckGLError("GLByteFlowRender::CreateTextures Create U texture");
 		return false;
 	}
 
@@ -215,7 +215,7 @@ bool GLByteFlowRender::CreateTextures()
 
 	if (!m_VTextureId)
 	{
-		GLUtils::CheckGLError("Create V texture");
+		GLUtils::CheckGLError("GLByteFlowRender::CreateTextures Create V texture");
 		return false;
 	}
 
