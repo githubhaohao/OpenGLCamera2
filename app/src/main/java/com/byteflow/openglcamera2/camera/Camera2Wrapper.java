@@ -356,13 +356,15 @@ public class Camera2Wrapper {
     }
 
     private void stopBackgroundThread() {
-        mBackgroundThread.quitSafely();
-        try {
-            mBackgroundThread.join();
-            mBackgroundThread = null;
-            mBackgroundHandler = null;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        if (mBackgroundThread != null) {
+            mBackgroundThread.quitSafely();
+            try {
+                mBackgroundThread.join();
+                mBackgroundThread = null;
+                mBackgroundHandler = null;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -407,12 +409,14 @@ public class Camera2Wrapper {
     public void setDefaultPreviewSize(Size size) {
         if (size != null && size.getWidth() * size.getHeight() > 0) {
             mDefaultPreviewSize = size;
+            getCameraInfo(mCameraId);
         }
     }
 
     public void setDefaultCaptureSize(Size size) {
         if (size != null && size.getWidth() * size.getHeight() > 0) {
             mDefaultCaptureSize = size;
+            getCameraInfo(mCameraId);
         }
     }
 

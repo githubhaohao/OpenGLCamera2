@@ -10,7 +10,7 @@
         android:layout_marginLeft="16dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:clickable="false"
+        android:enabled="false"
         android:id="@+id/radio_btn"/>
     <TextView
         android:layout_marginLeft="16dp"
