@@ -1,3 +1,4 @@
+//dynimic mesh 动态网格
 #version 100
 precision highp float;
 varying vec2 v_texcoord;

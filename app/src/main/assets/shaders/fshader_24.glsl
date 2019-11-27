@@ -1,12 +1,10 @@
-//scale circle 缩放的圆
+//分屏
 #version 100
 precision highp float;
 varying vec2 v_texcoord;
 uniform lowp sampler2D s_textureY;
 uniform lowp sampler2D s_textureU;
 uniform lowp sampler2D s_textureV;
-uniform float u_offset;
-uniform vec2 texSize;
 vec4 YuvToRgb(vec2 uv) {
     float y, u, v, r, g, b;
     y = texture2D(s_textureY, uv).r;
@@ -21,14 +19,24 @@ vec4 YuvToRgb(vec2 uv) {
 }
 void main()
 {
-    vec2 imgTex = v_texcoord * texSize;
-    float r = (u_offset + 0.208 ) * texSize.x;
-    if(distance(imgTex, vec2(texSize.x / 2.0, texSize.y / 2.0)) < r)
+    vec2 newTexCoord = v_texcoord;
+    if(newTexCoord.x < 0.5)
     {
-        gl_FragColor = YuvToRgb(v_texcoord);
+        newTexCoord.x = newTexCoord.x * 2.0;
     }
     else
     {
-        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+        newTexCoord.x = (newTexCoord.x - 0.5) * 2.0;
     }
+
+    if(newTexCoord.y < 0.5)
+    {
+        newTexCoord.y = newTexCoord.y * 2.0;
+    }
+    else
+    {
+        newTexCoord.y = (newTexCoord.y - 0.5) * 2.0;
+    }
+
+    gl_FragColor = YuvToRgb(newTexCoord);
 }
