@@ -47,6 +47,7 @@ GLByteFlowRender::GLByteFlowRender() :
 		m_LutTextureHandle(0),
 		m_TextureSizeHandle(0),
 		m_OffsetHandle(0),
+		m_TimeHandle(0),
 		m_MVPHandle(0),
 		m_MVPMatrix(1.0f),
 		m_ShaderIndex(0),
@@ -507,6 +508,7 @@ int GLByteFlowRender::CreateProgram(const char *pVertexShaderSource, const char 
 
 	m_TextureSizeHandle = glGetUniformLocation(m_Program, "texSize");
 	m_OffsetHandle = glGetUniformLocation(m_Program, "u_offset");
+	m_TimeHandle = glGetUniformLocation(m_Program, "u_time");
 
 	m_VertexCoorHandle = (GLuint) glGetAttribLocation(m_Program, "position");
 	m_TextureCoorHandle = (GLuint) glGetAttribLocation(m_Program, "texcoord");
@@ -559,6 +561,12 @@ void GLByteFlowRender::SetShaderProgramDynamicAttrib(int shaderIndex)
 				glUniform1f(m_OffsetHandle, offset);
 			}
 			break;
+		case GHOST_SHADER_INDEX:
+			if (m_OffsetHandle >= 0)
+			{
+				glUniform1f(m_OffsetHandle, progress);
+			}
+			break;
 		case ROTATE_CIRCLE_SHADER_INDEX:
 			if (m_OffsetHandle >= 0)
 			{
@@ -600,6 +608,11 @@ void GLByteFlowRender::SetShaderProgramDynamicAttrib(int shaderIndex)
 		size[0] = m_RenderFrame.width;
 		size[1] = m_RenderFrame.height;
 		glUniform2fv(m_TextureSizeHandle, 1, &size[0]);
+	}
+
+	if (m_TimeHandle >= 0)
+	{
+		glUniform1f(m_TimeHandle, m_FrameIndex / 10);
 	}
 
 }

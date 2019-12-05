@@ -25,6 +25,9 @@
 #define LUT_D_SHADER_INDEX            22
 #define DOUYIN_SHADER_INDEX           23
 
+#define GHOST_SHADER_INDEX            26
+
+
 #define MAX_FRAME_NUM  30
 #define SKIP_FRAME_NUM 5
 
@@ -99,6 +102,7 @@ private:
 
 	GLint m_TextureSizeHandle;
 	GLint m_OffsetHandle;
+	GLint m_TimeHandle;
 	GLint m_MVPHandle;
 
 //	std::vector<const char *> m_FragShaders;

@@ -35,7 +35,7 @@ public class ImageActivity extends BaseRenderActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_image);
 
-        mSurfaceViewRoot = findViewById(R.id.surface_root);
+        mSurfaceViewRoot = (RelativeLayout) findViewById(R.id.surface_root);
 
         RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.MATCH_PARENT);
