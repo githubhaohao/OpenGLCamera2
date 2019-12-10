@@ -1,3 +1,4 @@
+//分色偏移
 #version 100
 precision highp float;
 varying vec2 v_texcoord;

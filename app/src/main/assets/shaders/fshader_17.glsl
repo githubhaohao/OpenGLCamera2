@@ -1,3 +1,4 @@
+//旋转的圆
 #version 100
 precision highp float;
 varying vec2 v_texcoord;
@@ -48,6 +49,6 @@ void main()
     }
     else
     {
-        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+        gl_FragColor = YuvToRgb(v_texcoord);
     }
 }

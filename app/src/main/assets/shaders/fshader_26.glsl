@@ -1,4 +1,4 @@
-//灵魂出鞘
+//灵魂出窍
 #version 100
 precision highp float;
 varying vec2 v_texcoord;
@@ -34,10 +34,6 @@ void main()
     vec4 maskColor = YuvToRgb(scaleCoord);
 
     vec4 originColor = YuvToRgb(v_texcoord);
-    //vec4 offsetColor0 = YuvToRgb(vec2(v_texcoord.x + originOffset, v_texcoord.y + originOffset));
-    //vec4 offsetColor1 = YuvToRgb(vec2(v_texcoord.x - originOffset, v_texcoord.y - originOffset));
-
-    //vec4 newColor = vec4(originColor.r, offsetColor0.g, offsetColor0.b, originColor.a);
 
     gl_FragColor = originColor * (1.0 - alpha) + maskColor * alpha;
 }
