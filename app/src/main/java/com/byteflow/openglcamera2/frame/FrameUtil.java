@@ -18,7 +18,7 @@ public class FrameUtil {
 
     public static String getBaseDirPath() {
         if (sBaseDirPath == null) {
-            sBaseDirPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath() + "/ByteFlow";
+            sBaseDirPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/ByteFlow";
             File file = new File(sBaseDirPath);
             if (!file.exists()) {
                 if (!file.mkdir()) {
