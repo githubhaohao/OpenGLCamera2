@@ -6,13 +6,14 @@ import android.graphics.BitmapFactory;
 import android.hardware.camera2.CameraCharacteristics;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Size;
 import android.view.MotionEvent;
 import android.widget.RelativeLayout;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.byteflow.openglcamera2.camera.CameraUtil;
 import com.byteflow.openglcamera2.gesture.MyGestureListener;
@@ -26,7 +27,7 @@ import static com.byteflow.openglcamera2.render.ByteFlowRender.IMAGE_FORMAT_RGBA
 
 public abstract class BaseRenderActivity extends AppCompatActivity implements MyGestureListener.SimpleGestureListener {
     private static final String TAG = "BaseRenderActivity";
-    protected static final int SHADER_NUM = 30;
+    protected static final int SHADER_NUM = 27;
     protected static final int LUT_A_SHADER_INDEX = 19;
     protected static final int LUT_B_SHADER_INDEX = 20;
     protected static final int LUT_C_SHADER_INDEX = 21;

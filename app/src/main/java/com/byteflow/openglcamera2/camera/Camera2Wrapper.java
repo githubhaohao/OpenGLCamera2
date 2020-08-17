@@ -17,11 +17,13 @@ import android.media.Image;
 import android.media.ImageReader;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
 import android.util.AndroidRuntimeException;
 import android.util.Log;
 import android.util.Size;
+import android.view.Surface;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 
 import java.util.Arrays;
 import java.util.List;
@@ -48,6 +50,8 @@ public class Camera2Wrapper {
     private Size mDefaultPreviewSize = new Size(1920, 1080);
     private Size mDefaultCaptureSize = new Size(1920, 1080);
 
+    private Surface mPreviewSurface;
+
     private Size mPreviewSize, mPictureSize;
     private List<Size> mSupportPreviewSize, mSupportPictureSize;
 
@@ -64,7 +68,6 @@ public class Camera2Wrapper {
                 }
                 image.close();
             }
-
         }
     };
 
@@ -84,6 +87,12 @@ public class Camera2Wrapper {
     public Camera2Wrapper(Context context) {
         mContext = context;
         mCamera2FrameCallback = (Camera2FrameCallback) context;
+        initCamera2Wrapper();
+    }
+
+    public Camera2Wrapper(Context context, Camera2FrameCallback callback) {
+        mContext = context;
+        mCamera2FrameCallback = callback;
         initCamera2Wrapper();
     }
 
@@ -180,6 +189,26 @@ public class Camera2Wrapper {
         if (mPreviewImageReader == null && mPreviewSize != null) {
             mPreviewImageReader = ImageReader.newInstance(mPreviewSize.getWidth(), mPreviewSize.getHeight(), ImageFormat.YUV_420_888, 2);
             mPreviewImageReader.setOnImageAvailableListener(mOnPreviewImageAvailableListener, mBackgroundHandler);
+            mPreviewSurface = mPreviewImageReader.getSurface();
+        }
+
+        if (mCaptureImageReader == null && mPictureSize != null) {
+            mCaptureImageReader = ImageReader.newInstance(mPictureSize.getWidth(), mPictureSize.getHeight(), ImageFormat.YUV_420_888, 2);
+            mCaptureImageReader.setOnImageAvailableListener(mOnCaptureImageAvailableListener, mBackgroundHandler);
+        }
+
+        openCamera();
+    }
+
+    public void startCamera(SurfaceTexture previewSurfaceTex) {
+        startBackgroundThread();
+        if (previewSurfaceTex != null) {
+            previewSurfaceTex.setDefaultBufferSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
+            mPreviewSurface = new Surface(previewSurfaceTex);
+        } else {
+            mPreviewImageReader = ImageReader.newInstance(mPreviewSize.getWidth(), mPreviewSize.getHeight(), ImageFormat.YUV_420_888, 2);
+            mPreviewImageReader.setOnImageAvailableListener(mOnPreviewImageAvailableListener, mBackgroundHandler);
+            mPreviewSurface = mPreviewImageReader.getSurface();
         }
 
         if (mCaptureImageReader == null && mPictureSize != null) {
@@ -306,8 +335,8 @@ public class Camera2Wrapper {
 
     private void createCaptureSession() {
         try {
-            if (null == mCameraDevice || null == mPreviewImageReader || null == mCaptureImageReader) return;
-            mCameraDevice.createCaptureSession(Arrays.asList(mPreviewImageReader.getSurface(), mCaptureImageReader.getSurface()),
+            if (null == mCameraDevice || null == mPreviewSurface || null == mCaptureImageReader) return;
+            mCameraDevice.createCaptureSession(Arrays.asList(mPreviewSurface, mCaptureImageReader.getSurface()),
                     mSessionStateCallback, mBackgroundHandler);
 
         } catch (CameraAccessException e) {
@@ -338,10 +367,10 @@ public class Camera2Wrapper {
     };
 
     private CaptureRequest createPreviewRequest() {
-        if (null == mCameraDevice) return null;
+        if (null == mCameraDevice || mPreviewSurface == null) return null;
         try {
             CaptureRequest.Builder builder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
-            builder.addTarget(mPreviewImageReader.getSurface());
+            builder.addTarget(mPreviewSurface);
             return builder.build();
         } catch (CameraAccessException e) {
             Log.e(TAG, e.getMessage());

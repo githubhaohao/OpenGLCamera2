@@ -8,12 +8,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.Size;
 import android.view.LayoutInflater;
@@ -31,11 +25,18 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.byteflow.openglcamera2.camera.Camera2FrameCallback;
 import com.byteflow.openglcamera2.camera.Camera2Wrapper;
 import com.byteflow.openglcamera2.frame.ByteFlowFrame;
 import com.byteflow.openglcamera2.frame.FrameUtil;
 import com.byteflow.openglcamera2.gesture.MyGestureListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +64,7 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
         //Toolbar toolbar = findViewById(R.id.toolbar);
         //setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -175,14 +176,14 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
     }
 
     private void initViews() {
-        mSwitchCamBtn = findViewById(R.id.switch_camera_btn);
-        mSwitchRatioBtn = findViewById(R.id.switch_ratio_btn);
+        mSwitchCamBtn = (ImageButton) findViewById(R.id.switch_camera_btn);
+        mSwitchRatioBtn = (ImageButton) findViewById(R.id.switch_ratio_btn);
         mSwitchCamBtn.bringToFront();
         mSwitchRatioBtn.bringToFront();
         mSwitchCamBtn.setOnClickListener(this);
         mSwitchRatioBtn.setOnClickListener(this);
 
-        mSurfaceViewRoot = findViewById(R.id.surface_root);
+        mSurfaceViewRoot = (RelativeLayout) findViewById(R.id.surface_root);
         RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.MATCH_PARENT);
         mSurfaceViewRoot.addView(mGLSurfaceView, p);

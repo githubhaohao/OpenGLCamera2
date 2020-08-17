@@ -4,12 +4,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.renderscript.Byte4;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Size;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
+
+import androidx.annotation.Nullable;
 
 import com.byteflow.openglcamera2.frame.ByteFlowFrame;
 import com.byteflow.openglcamera2.frame.FrameUtil;
