@@ -7,10 +7,10 @@
 
 #include<android/log.h>
 #include <sys/time.h>
-#define  LOGCATE(...)  __android_log_print(ANDROID_LOG_ERROR,"HaoHao",__VA_ARGS__)
-#define  LOGCATV(...)  __android_log_print(ANDROID_LOG_VERBOSE,"HaoHao",__VA_ARGS__)
-#define  LOGCATD(...)  __android_log_print(ANDROID_LOG_DEBUG,"HaoHao",__VA_ARGS__)
-#define  LOGCATI(...)  __android_log_print(ANDROID_LOG_INFO,"HaoHao",__VA_ARGS__)
+#define  LOGCATE(...)  __android_log_print(ANDROID_LOG_ERROR,"ByteFlow",__VA_ARGS__)
+#define  LOGCATV(...)  __android_log_print(ANDROID_LOG_VERBOSE,"ByteFlow",__VA_ARGS__)
+#define  LOGCATD(...)  __android_log_print(ANDROID_LOG_DEBUG,"ByteFlow",__VA_ARGS__)
+#define  LOGCATI(...)  __android_log_print(ANDROID_LOG_INFO,"ByteFlow",__VA_ARGS__)
 
 #define FUN_BEGIN_TIME(FUN) {\
     LOGCATE("%s:%s start", __FILE__, FUN); \
