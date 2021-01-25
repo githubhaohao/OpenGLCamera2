@@ -17,11 +17,13 @@
 #define IMAGE_FORMAT_NV21           0x02
 #define IMAGE_FORMAT_NV12           0x03
 #define IMAGE_FORMAT_I420           0x04
+#define IMAGE_FORMAT_RGB            0x05
 
 #define IMAGE_FORMAT_RGBA_EXT       "RGB32"
 #define IMAGE_FORMAT_NV21_EXT       "NV21"
 #define IMAGE_FORMAT_NV12_EXT       "NV12"
 #define IMAGE_FORMAT_I420_EXT       "I420"
+#define IMAGE_FORMAT_RGB_EXT        "RGB24"
 
 typedef struct _tag_NativeRectF
 {
@@ -81,6 +83,11 @@ public:
 				pImage->ppPlane[2] = pImage->ppPlane[1] + pImage->width * (pImage->height >> 2);
 			}
 				break;
+			case IMAGE_FORMAT_RGB:
+			{
+				pImage->ppPlane[0] = static_cast<uint8_t *>(malloc(pImage->width * pImage->height * 3));
+			}
+				break;
 			default:
 				LOGCATE("NativeImageUtil::AllocNativeImage do not support the format. Format = %d", pImage->format);
 				break;
@@ -121,6 +128,11 @@ public:
 				memcpy(pDstImg->ppPlane[0], pSrcImg->ppPlane[0], pSrcImg->width * pSrcImg->height * 4);
 			}
 				break;
+			case IMAGE_FORMAT_RGB:
+			{
+				memcpy(pDstImg->ppPlane[0], pSrcImg->ppPlane[0], pSrcImg->width * pSrcImg->height * 3);
+			}
+				break;
 			default:
 			{
 				LOGCATE("NativeImageUtil::CopyNativeImage do not support the format. Format = %d", pSrcImg->format);
@@ -154,6 +166,9 @@ public:
 				break;
 			case IMAGE_FORMAT_RGBA:
 				pExt = IMAGE_FORMAT_RGBA_EXT;
+				break;
+			case IMAGE_FORMAT_RGB:
+				pExt = IMAGE_FORMAT_RGB_EXT;
 				break;
 			default:
 				pExt = "Default";
