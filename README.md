@@ -1,7 +1,7 @@
 # OpenGLCamera2
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/githubhaohao/NDK_OpenGLES_3_0/blob/master/LICENSE.txt)
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
-[![apk](https://img.shields.io/badge/APK-download-green.svg)](https://github.com/githubhaohao/OpenGLCamera2/raw/master/gif/OpenGLCamera2.apk)
+[![apk](https://img.shields.io/badge/APK-download-green.svg)](https://github.com/githubhaohao/OpenGLCamera2/raw/master/app/release/app-release.apk)
 
 ## Android OpenGL Camera 2.0 
 
