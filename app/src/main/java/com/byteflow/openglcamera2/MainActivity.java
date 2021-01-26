@@ -346,6 +346,9 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
                     case LUT_D_SHADER_INDEX:
                         loadRGBAImage(R.drawable.lut_d, 0);
                         break;
+                    case ASCII_SHADER_INDEX:
+                        loadRGBAImage(R.drawable.ascii_mapping, ASCII_SHADER_INDEX);
+                        break;
                         default:
                 }
 
@@ -374,6 +377,9 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
                         break;
                     case LUT_D_SHADER_INDEX:
                         loadRGBAImage(R.drawable.lut_d, 0);
+                        break;
+                    case ASCII_SHADER_INDEX:
+                        loadRGBAImage(R.drawable.ascii_mapping, ASCII_SHADER_INDEX);
                         break;
                     default:
                 }

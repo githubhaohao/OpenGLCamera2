@@ -27,6 +27,8 @@
 
 #define GHOST_SHADER_INDEX            26
 
+#define ASCII_SHADER_INDEX            29
+
 
 #define MAX_FRAME_NUM  30
 #define SKIP_FRAME_NUM 5
@@ -82,8 +84,7 @@ private:
 	GLuint m_YTextureId;
 	GLuint m_UTextureId;
 	GLuint m_VTextureId;
-
-	GLuint m_LutTextureId;
+	GLuint m_ExtRgbaTextureId;
 
 	GLuint m_Program;
 	GLuint m_VertexShader;
@@ -111,13 +112,13 @@ private:
 
 	int m_PeriodicFrameIndex;
 	int m_FrameIndex;
-	NativeImage m_LutImage;
+	NativeImage m_ExtRgbaImage;
 	SyncLock m_SynLock;
-	volatile bool m_IsUpdateLutTexture;
+
+	volatile bool m_IsUpdateExtTexture;
 
 	char *m_pFragShaderBuf;
 	SyncLock m_ShaderBufLock;
-
 };
 
 

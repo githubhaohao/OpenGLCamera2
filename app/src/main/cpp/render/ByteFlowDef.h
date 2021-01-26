@@ -13,7 +13,7 @@
 #define BF_ERROR -1
 
 //for YUV420p_I420
-typedef struct _tag_ByteFlowFrame
+typedef struct ByteFlowFrame
 {
 	size_t width;
 	size_t height;
@@ -24,7 +24,7 @@ typedef struct _tag_ByteFlowFrame
 	uint8_t *pUPlane;
 	uint8_t *pVPlane;
 
-	_tag_ByteFlowFrame()
+	ByteFlowFrame()
 	{
 		width = 0;
 		height= 0;
@@ -37,9 +37,9 @@ typedef struct _tag_ByteFlowFrame
 		pVPlane = NULL;
 	}
 
-} ByteFlowFrame;
+};
 
-typedef struct _tag_TransformMatrix
+typedef struct TransformMatrix
 {
 	int degree;
 	int mirror;
@@ -48,7 +48,7 @@ typedef struct _tag_TransformMatrix
 	float scaleX;
 	float scaleY;
 
-	_tag_TransformMatrix():
+	TransformMatrix():
 			translateX(0),
 			translateY(0),
 			scaleX(1.0),
@@ -69,7 +69,7 @@ typedef struct _tag_TransformMatrix
 
 	}
 
-} TransformMatrix;
+};
 
 class ByteFlowFrameUtil
 {
