@@ -1,12 +1,14 @@
-//画中画
+//字符画
 #version 100
 precision highp float;
 varying vec2 v_texcoord;
 uniform lowp sampler2D s_textureY;
 uniform lowp sampler2D s_textureU;
 uniform lowp sampler2D s_textureV;
-uniform float u_time;
+uniform lowp sampler2D s_textureMapping;
+uniform float u_offset;
 uniform vec2 texSize;
+uniform vec2 asciiTexSize;
 
 vec4 YuvToRgb(vec2 uv) {
     float y, u, v, r, g, b;
@@ -21,46 +23,40 @@ vec4 YuvToRgb(vec2 uv) {
     return vec4(r, g, b, 1.0);
 }
 
-vec2 boom(vec2 xy, vec2 size, vec2 center, float radius, float min, float max)
-{
-    vec2 newXy = xy;
-    vec2 uv = v_texcoord;
-    uv.x *= (size.x / size.y);
-    vec2 centerPoint = center * size;
-    vec2 realCenter = vec2(0.0, 0.0);
-    realCenter.x = (centerPoint.x / size.x) * (size.x / size.y);
-    realCenter.y = centerPoint.y / size.y;
-    float maxX = realCenter.x + radius;
-    float minX = realCenter.x - radius;
-    float maxY = realCenter.y + radius;
-    float minY = realCenter.y - radius;
-    if (uv.x > minX && uv.x < maxX && uv.y > minY && uv.y < maxY) {
-        float relX = uv.x - realCenter.x;
-        float relY = uv.y - realCenter.y;
-        float ang =  atan(relY, relX);
-        float dist = sqrt(relX * relX + relY * relY);
-        if (dist <= radius) {
-            float newRad = dist * ((max * dist / radius) + min);
-            float newX = realCenter.x + cos(ang) * newRad;
-            newX *= (size.y / size.x);
-            float newY = realCenter.y + sin(ang) * newRad;
-            newXy = vec2(newX, newY);
-        }
-    }
-    return newXy;
-}
-
-float rand(float n) {
-    // fract(x) 返回x的小数部分数值
-    return fract(sin(n) * 50000.0);
-}
-
+const vec3  RGB2GRAY_VEC3 = vec3(0.2125, 0.7154, 0.0721);
+const float MESH_WIDTH = 16.0;//一个字符的宽
+const float MESH_HEIGHT= 23.0;//一个字符的高
+const float GARY_LEVEL = 24.0;//字符表图上有 24 个字符
+const float ASCIIS_WIDTH = 8.0;//字符表列数
+const float ASCIIS_HEIGHT = 3.0;//字符表行数
+const float MESH_ROW_NUM = 80.0;//固定小格子的行数
 void main()
 {
+    float imageMeshWidth = texSize.x / MESH_ROW_NUM;
+    float imageMeshHeight = imageMeshWidth * MESH_HEIGHT / MESH_WIDTH;
 
-    vec2 center;
-    center.x = rand(u_time);
-    center.y = rand(center.x);
-    float radius = rand(center.y) * 0.5;
-    gl_FragColor = YuvToRgb(boom(v_texcoord, texSize, center, radius, 0.4, 0.6));
+    vec2 imageTexCoord = v_texcoord * texSize;//归一化坐标转像素坐标
+    vec2 midTexCoord;
+    midTexCoord.x = floor(imageTexCoord.x / imageMeshWidth) * imageMeshWidth + imageMeshWidth * 0.5;//小格子中心
+    midTexCoord.y = floor(imageTexCoord.y / imageMeshHeight) * imageMeshHeight + imageMeshHeight * 0.5;//小格子中心
+
+    vec2 normalizedTexCoord = midTexCoord / texSize;//归一化
+    vec4 rgbColor = YuvToRgb(normalizedTexCoord);//采样
+    float grayValue = dot(rgbColor.rgb, RGB2GRAY_VEC3);//rgb分量转灰度值
+
+    float offsetX = mod(imageTexCoord.x, imageMeshWidth) * MESH_WIDTH / imageMeshWidth;
+    float offsetY = mod(imageTexCoord.y, imageMeshHeight) * MESH_HEIGHT / imageMeshHeight;
+
+    float asciiIndex = floor((1.0 - grayValue) * GARY_LEVEL);//第几个字符
+    float asciiIndexX = mod(asciiIndex, ASCIIS_WIDTH);
+    float asciiIndexY = floor(asciiIndex / ASCIIS_WIDTH);
+
+    vec2 grayTexCoord;
+    grayTexCoord.x = (asciiIndexX * MESH_WIDTH + offsetX) / asciiTexSize.x;
+    grayTexCoord.y = (asciiIndexY * MESH_HEIGHT + offsetY) / asciiTexSize.y;
+
+    vec4 originColor = YuvToRgb(v_texcoord);//采样原始纹理
+    vec4 mappingColor = vec4(texture2D(s_textureMapping, grayTexCoord).rgb, rgbColor.a);
+
+    gl_FragColor = mix(originColor, mappingColor, u_offset);
 }
