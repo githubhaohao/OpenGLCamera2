@@ -36,7 +36,7 @@ public abstract class BaseRenderActivity extends AppCompatActivity implements My
     protected GLByteFlowRender mByteFlowRender;
     protected GLSurfaceView mGLSurfaceView;
     protected MyGestureListener mGestureDetector;
-    protected int mCurrentShaderIndex = 0;
+    protected int mCurrentShaderIndex = 23;
     protected Size mRootViewSize, mScreenSize;
 
     @Override
