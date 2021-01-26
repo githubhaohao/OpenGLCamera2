@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 public class Camera2Wrapper {
     private static final String TAG = "Camera2Wrapper";
     private static final int DEFAULT_CAMERA_ID = 0;
+    private final float THRESHOLD = 0.001f;
 
     private Camera2FrameCallback mCamera2FrameCallback;
     private Context mContext;
@@ -131,11 +132,12 @@ public class Camera2Wrapper {
             for (Size size : mSupportPreviewSize) {
                 Log.d(TAG, "initCamera2Wrapper() called mSupportPreviewSize " + size.getWidth() + "x" + size.getHeight());
                 float ratio = size.getWidth() * 1.0f / size.getHeight();
-                if (ratio == defaultRatio) {
+                if (Math.abs(ratio - defaultRatio) < THRESHOLD) {
                     sameRatioSize = size;
                 }
 
                 if (mDefaultPreviewSize.getWidth() == size.getWidth() && mDefaultPreviewSize.getHeight() == size.getHeight()) {
+                    Log.d(TAG, "initCamera2Wrapper() called supportDefaultSize ");
                     supportDefaultSize = true;
                     break;
                 }
@@ -154,7 +156,7 @@ public class Camera2Wrapper {
             for (Size size : mSupportPictureSize) {
                 Log.d(TAG, "initCamera2Wrapper() called mSupportPictureSize " + size.getWidth() + "x" + size.getHeight());
                 float ratio = size.getWidth() * 1.0f / size.getHeight();
-                if (ratio == defaultRatio) {
+                if (Math.abs(ratio - defaultRatio) < THRESHOLD) {
                     sameRatioSize = size;
                 }
 
