@@ -23,13 +23,13 @@ vec4 YuvToRgb(vec2 uv) {
     return vec4(r, g, b, 1.0);
 }
 
-const vec3  RGB2GRAY_VEC3 = vec3(0.2125, 0.7154, 0.0721);
+const vec3  RGB2GRAY_VEC3 = vec3(0.299, 0.587, 0.114);
 const float MESH_WIDTH = 16.0;//一个字符的宽
 const float MESH_HEIGHT= 23.0;//一个字符的高
 const float GARY_LEVEL = 24.0;//字符表图上有 24 个字符
 const float ASCIIS_WIDTH = 8.0;//字符表列数
 const float ASCIIS_HEIGHT = 3.0;//字符表行数
-const float MESH_ROW_NUM = 80.0;//固定小格子的行数
+const float MESH_ROW_NUM = 100.0;//固定小格子的行数
 void main()
 {
     float imageMeshWidth = texSize.x / MESH_ROW_NUM;
@@ -43,6 +43,7 @@ void main()
     vec2 normalizedTexCoord = midTexCoord / texSize;//归一化
     vec4 rgbColor = YuvToRgb(normalizedTexCoord);//采样
     float grayValue = dot(rgbColor.rgb, RGB2GRAY_VEC3);//rgb分量转灰度值
+    //gl_FragColor = vec4(vec3(grayValue), rgbColor.a);
 
     float offsetX = mod(imageTexCoord.x, imageMeshWidth) * MESH_WIDTH / imageMeshWidth;
     float offsetY = mod(imageTexCoord.y, imageMeshHeight) * MESH_HEIGHT / imageMeshHeight;
