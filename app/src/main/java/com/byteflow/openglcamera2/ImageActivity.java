@@ -1,33 +1,34 @@
 package com.byteflow.openglcamera2;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.renderscript.Byte4;
+import android.os.Environment;
 import android.util.Log;
 import android.util.Size;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
-import android.widget.SeekBar;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
 import com.byteflow.openglcamera2.frame.ByteFlowFrame;
 import com.byteflow.openglcamera2.frame.FrameUtil;
 import com.byteflow.openglcamera2.gesture.MyGestureListener;
+import com.byteflow.openglcamera2.render.GLByteFlowRender;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.GregorianCalendar;
+import java.util.Locale;
 
 import static com.byteflow.openglcamera2.render.ByteFlowRender.IMAGE_FORMAT_I420;
-import static com.byteflow.openglcamera2.render.ByteFlowRender.IMAGE_FORMAT_RGBA;
-import static com.byteflow.openglcamera2.render.ByteFlowRender.PARAM_TYPE_SET_SHADER_INDEX;
 
-public class ImageActivity extends BaseRenderActivity {
+public class ImageActivity extends BaseRenderActivity implements GLByteFlowRender.Callback {
     private static final String TAG = "ImageActivity";
+    private static final SimpleDateFormat DateTime_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.US);
+    private static final String RESULT_IMG_DIR = "OpenGLCamera2";
     private RelativeLayout mSurfaceViewRoot;
     private ByteFlowFrame mByteFlowFrame;
+    private volatile boolean mReadPixelsReady = true;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -43,6 +44,7 @@ public class ImageActivity extends BaseRenderActivity {
         mSurfaceViewRoot.addView(mGLSurfaceView, p);
 
         mByteFlowRender.init(mGLSurfaceView);
+        mByteFlowRender.addCallback(this);
         mByteFlowRender.loadShaderFromAssetsFile(mCurrentShaderIndex, getResources());
         String path = getIntent().getStringExtra("img_path");
         String camera_id = getIntent().getStringExtra("img_ort");
@@ -110,6 +112,10 @@ public class ImageActivity extends BaseRenderActivity {
                 }
 
                 //mByteFlowRender.setParamsInt(PARAM_TYPE_SET_SHADER_INDEX, mCurrentShaderIndex);
+                if(mReadPixelsReady) {
+                    mReadPixelsReady = false;
+                    mByteFlowRender.readPixels(new Size(mByteFlowFrame.getHeight(),mByteFlowFrame.getWidth()), getResultImgFile(".jpg").getPath());
+                }
                 mByteFlowRender.requestRender();
                 break;
             case SWIPE_LEFT:
@@ -141,10 +147,40 @@ public class ImageActivity extends BaseRenderActivity {
                     mByteFlowRender.loadShaderFromAssetsFile(mCurrentShaderIndex, getResources());
                 }
                 //mByteFlowRender.setParamsInt(PARAM_TYPE_SET_SHADER_INDEX, mCurrentShaderIndex);
+                if(mReadPixelsReady) {
+                    mReadPixelsReady = false;
+                    mByteFlowRender.readPixels(new Size(mByteFlowFrame.getHeight(),mByteFlowFrame.getWidth()), getResultImgFile(".jpg").getPath());
+                }
                 mByteFlowRender.requestRender();
                 break;
             default:
                 break;
         }
+    }
+
+    public static final File getResultImgFile(final String ext) {
+        final File dir = new File(Environment.getExternalStorageDirectory(), RESULT_IMG_DIR);
+        Log.d(TAG, "path=" + dir.toString());
+        dir.mkdirs();
+        if (dir.canWrite()) {
+            return new File(dir, getDateTimeString() + ext);
+        }
+        return null;
+    }
+
+    private static final String getDateTimeString() {
+        final GregorianCalendar now = new GregorianCalendar();
+        return DateTime_FORMAT.format(now.getTime());
+    }
+
+    @Override
+    public void onReadPixelsSaveToLocal(final String imgPath) {
+        mReadPixelsReady = true;
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(ImageActivity.this, "Save result image to path:" + imgPath, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

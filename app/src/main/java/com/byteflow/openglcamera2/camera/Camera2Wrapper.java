@@ -138,7 +138,6 @@ public class Camera2Wrapper {
 
                 if (mDefaultPreviewSize.getWidth() == size.getWidth() && mDefaultPreviewSize.getHeight() == size.getHeight()) {
                     Log.d(TAG, "initCamera2Wrapper() called supportDefaultSize ");
-                    mPreviewSize = mDefaultPreviewSize;
                     supportDefaultSize = true;
                     break;
                 }

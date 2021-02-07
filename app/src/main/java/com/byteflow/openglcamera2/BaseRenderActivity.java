@@ -10,6 +10,7 @@ import android.util.DisplayMetrics;
 import android.util.Size;
 import android.view.MotionEvent;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,7 +28,7 @@ import static com.byteflow.openglcamera2.render.ByteFlowRender.IMAGE_FORMAT_RGBA
 
 public abstract class BaseRenderActivity extends AppCompatActivity implements MyGestureListener.SimpleGestureListener {
     private static final String TAG = "BaseRenderActivity";
-    protected static final int SHADER_NUM = 30;
+    protected static final int SHADER_NUM = 32;
     protected static final int LUT_A_SHADER_INDEX = 19;
     protected static final int LUT_B_SHADER_INDEX = 20;
     protected static final int LUT_C_SHADER_INDEX = 21;
@@ -36,6 +37,7 @@ public abstract class BaseRenderActivity extends AppCompatActivity implements My
     protected GLByteFlowRender mByteFlowRender;
     protected GLSurfaceView mGLSurfaceView;
     protected MyGestureListener mGestureDetector;
+    //protected int mCurrentShaderIndex = SHADER_NUM - 1;
     protected int mCurrentShaderIndex = 23;
     protected Size mRootViewSize, mScreenSize;
 
@@ -51,6 +53,7 @@ public abstract class BaseRenderActivity extends AppCompatActivity implements My
     @Override
     protected void onResume() {
         super.onResume();
+        Toast.makeText(this, "左滑或右滑切换滤镜", Toast.LENGTH_SHORT).show();
     }
 
     @Override
