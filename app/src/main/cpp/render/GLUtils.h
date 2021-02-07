@@ -57,6 +57,10 @@ public:
 		glUniform4f(glGetUniformLocation(programId, name.c_str()), x, y, z, w);
 	}
 
+	static void setVecN(GLuint programId, const std::string &name, int count, const float *values) {
+		glUniform1fv(glGetUniformLocation(programId, name.c_str()), count, values);
+	}
+
 	static void setMat2(GLuint programId, const std::string &name, const glm::mat2 &mat) {
 		glUniformMatrix2fv(glGetUniformLocation(programId, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 	}
