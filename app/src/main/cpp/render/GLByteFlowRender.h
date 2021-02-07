@@ -5,7 +5,6 @@
 #ifndef OPENGLCAMERA2_GLBYTEFLOWRENDER_H
 #define OPENGLCAMERA2_GLBYTEFLOWRENDER_H
 
-
 #include <detail/type_mat.hpp>
 #include <detail/type_mat4x4.hpp>
 #include <GLES3/gl3.h>
@@ -28,11 +27,11 @@
 #define GHOST_SHADER_INDEX            26
 
 #define ASCII_SHADER_INDEX            29
-
+#define ASCII_SHADER_MATTE_BLUR       30
+#define ASCII_SHADER_POLAR_MOSAIC     31
 
 #define MAX_FRAME_NUM  30
 #define SKIP_FRAME_NUM 5
-
 
 class GLByteFlowRender : public ByteFlowRender
 {

@@ -67,30 +67,6 @@ GLByteFlowRender::~GLByteFlowRender() {
 
 int GLByteFlowRender::Init(int initType) {
     LOGCATE("GLByteFlowRender::Init");
-//	m_FragShaders.push_back(kFragmentShader0);
-//	m_FragShaders.push_back(kFragmentShader1);
-//	m_FragShaders.push_back(kFragmentShader2);
-//	m_FragShaders.push_back(kFragmentShader3);
-//	m_FragShaders.push_back(kFragmentShader4);
-//	m_FragShaders.push_back(kFragmentShader5);
-//	m_FragShaders.push_back(kFragmentShader6);
-//	m_FragShaders.push_back(kFragmentShader7);
-//	m_FragShaders.push_back(kFragmentShader8);
-//	m_FragShaders.push_back(kFragmentShader9);
-//	m_FragShaders.push_back(kFragmentShader10);
-//	m_FragShaders.push_back(kFragmentShader11);
-//	m_FragShaders.push_back(kFragmentShader12);
-//	m_FragShaders.push_back(kFragmentShader13);
-//	m_FragShaders.push_back(kFragmentShader14);
-//	m_FragShaders.push_back(kFragmentShader15);
-//	m_FragShaders.push_back(kFragmentShader16);
-//	m_FragShaders.push_back(kFragmentShader17);
-//	m_FragShaders.push_back(kFragmentShader18);
-//	m_FragShaders.push_back(kFragmentShader19);
-//	m_FragShaders.push_back(kFragmentShader19); //index = 20
-//	m_FragShaders.push_back(kFragmentShader19); //index = 21
-//	m_FragShaders.push_back(kFragmentShader19); //index = 22
-//	m_FragShaders.push_back(kFragmentShader23);
     return 0;
 }
 
@@ -531,6 +507,17 @@ void GLByteFlowRender::SetShaderProgramDynamicAttrib(int shaderIndex) {
             }
             GLUtils::setInt(m_Program, "s_textureMapping", 3);
             GLUtils::setVec2(m_Program, "asciiTexSize", m_ExtRgbaImage.width, m_ExtRgbaImage.height);
+        }
+        break;
+        case ASCII_SHADER_MATTE_BLUR: {
+            GLUtils::setFloat(m_Program, "blurSamplerScale", 4.0);
+            GLUtils::setFloat(m_Program, "factor", 0.1);
+            GLUtils::setInt(m_Program, "samplerRadius", 2);
+        }
+            break;
+        case ASCII_SHADER_POLAR_MOSAIC: {
+            GLUtils::setVec2(m_Program, "center", 0.5f, 0.5f);
+            GLUtils::setVec2(m_Program, "pixelSize", 0.05f, 0.05f);
         }
             break;
         default:
