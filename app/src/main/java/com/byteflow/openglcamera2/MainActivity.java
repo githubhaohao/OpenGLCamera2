@@ -191,7 +191,7 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
         mByteFlowRender.loadShaderFromAssetsFile(mCurrentShaderIndex, getResources());
 
         mCamera2Wrapper = new Camera2Wrapper(this);
-        mCamera2Wrapper.setDefaultPreviewSize(getScreenSize());
+        //mCamera2Wrapper.setDefaultPreviewSize(getScreenSize());
 
         ViewTreeObserver treeObserver = mSurfaceViewRoot.getViewTreeObserver();
         treeObserver.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {

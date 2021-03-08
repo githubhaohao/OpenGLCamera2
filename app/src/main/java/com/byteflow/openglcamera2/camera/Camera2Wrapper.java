@@ -48,8 +48,8 @@ public class Camera2Wrapper {
     private Integer mSensorOrientation;
 
     private Semaphore mCameraLock = new Semaphore(1);
-    private Size mDefaultPreviewSize = new Size(1920, 1080);
-    private Size mDefaultCaptureSize = new Size(1920, 1080);
+    private Size mDefaultPreviewSize = new Size(1280, 720);
+    private Size mDefaultCaptureSize = new Size(1280, 720);
 
     private Surface mPreviewSurface;
 
