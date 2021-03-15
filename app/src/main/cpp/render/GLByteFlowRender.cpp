@@ -554,7 +554,7 @@ void GLByteFlowRender::LoadFilterImageData(int index, NativeImage *pImage) {
 void GLByteFlowRender::LoadFragShaderScript(int shaderIndex, char *pShaderStr, int strLen) {
     LOGCATE("GLByteFlowRender::LoadFragShaderScript pShaderStr = %p, shaderIndex=%d", pShaderStr,
             shaderIndex);
-    if (m_FrameIndex != shaderIndex) {
+    if (m_ShaderIndex != shaderIndex) {
         ByteFlowLock lock(&m_ShaderBufLock);
         if (m_pFragShaderBuf) {
             free(m_pFragShaderBuf);
