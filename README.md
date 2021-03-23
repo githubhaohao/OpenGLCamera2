@@ -9,7 +9,7 @@
 
 对 OpenGL ES 3.0 不熟悉的同学可以移步 [Android OpenGLES 3.0 开发系统性学习教程。](https://github.com/githubhaohao/NDK_OpenGLES_3_0)
 
-**带滤镜的音视频录制**可以参考项目[LearnFFmpeg](https://github.com/githubhaohao/LearnFFmpeg)，该项目基于 FFmpeg 实现带滤镜的视频录制。
+**音视频录制**可以参考项目[LearnFFmpeg](https://github.com/githubhaohao/LearnFFmpeg)，该项目基于 FFmpeg 实现带滤镜的视频录制。
 
 ## 滤镜展示
 ### ![preview](https://github.com/githubhaohao/OpenGLCamera2/blob/master/gif/camera2_previewC.gif)
