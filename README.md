@@ -11,6 +11,8 @@
 
 **音视频录制**可以参考项目[LearnFFmpeg](https://github.com/githubhaohao/LearnFFmpeg)，该项目基于 FFmpeg 和 Android Camera2.0 实现带滤镜的视频录制。
 
+项目编译环境: Android Studio 4.1+ , NDK r21
+
 ## 滤镜展示
 ### ![preview](https://github.com/githubhaohao/OpenGLCamera2/blob/master/gif/camera2_previewC.gif)
 ### ![preview](https://github.com/githubhaohao/OpenGLCamera2/blob/master/gif/camera2_previewB.gif)
@@ -20,4 +22,3 @@
 有疑问或技术交流可以添加**我的微信：Byte-Flow , 拉你入相关技术交流群**，里面很多牛人帮你解答。
 
 ![字节流动](https://github.com/githubhaohao/NDK_OpenGLES_3_0/blob/master/doc/img/accountID.jpg)
-
