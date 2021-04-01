@@ -18,6 +18,11 @@
 ### ![preview](https://github.com/githubhaohao/OpenGLCamera2/blob/master/gif/camera2_previewB.gif)
 ### ![preview](https://github.com/githubhaohao/OpenGLCamera2/blob/master/gif/camera2_previewA.gif)
 
+## 相关推荐
+
+- [Android OpenGL ES 3.0 开发从入门到精通系统性学习教程](https://github.com/githubhaohao/NDK_OpenGLES_3_0)
+- [Android FFmpeg 音视频开发教程](https://github.com/githubhaohao/LearnFFmpeg)
+
 ## 联系交流
 有疑问或技术交流可以添加**我的微信：Byte-Flow , 领取视频教程，拉你入相关技术交流群**，里面很多牛人帮你解答。
 
