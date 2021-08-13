@@ -14,6 +14,8 @@ include_directories(
         src/main/cpp/render
         src/main/cpp/glm
         src/main/cpp/context
+        src/main/cpp/example
+        src/main/cpp/thirdparty
 )
 
 add_library( # Sets the name of the library.
@@ -27,6 +29,7 @@ add_library( # Sets the name of the library.
         src/main/cpp/render/GLByteFlowRender.cpp
         src/main/cpp/render/GLUtils.cpp
         src/main/cpp/context/RenderContext.cpp
+        src/main/cpp/example/ConveyorBeltExample.cpp
         )
 
 # Searches for a specified prebuilt library and stores the path as a
@@ -42,12 +45,9 @@ find_library( # Sets the name of the path variable.
               # you want CMake to locate.
               log )
 
-find_library( # Sets the name of the path variable.
-        GLESv2-lib
 
-        # Specifies the name of the NDK library that
-        # you want CMake to locate.
-        GLESv2 )
+add_library(opencv_java3 SHARED IMPORTED )
+set_target_properties(opencv_java3 PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/src/main/jniLibs/${ANDROID_ABI}/libopencv_java3.so)
 
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this
@@ -59,6 +59,7 @@ target_link_libraries( # Specifies the target library.
                        # Links the target library to the log library
                        # included in the NDK.
                        ${log-lib}
-                       ${GLESv2-lib}
+                       GLESv3
                        android
+                       opencv_java3
                        )

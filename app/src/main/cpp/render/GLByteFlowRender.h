@@ -109,7 +109,6 @@ private:
 	GLint m_TimeHandle;
 	GLint m_MVPHandle;
 
-//	std::vector<const char *> m_FragShaders;
 	int m_ShaderIndex;
 	volatile bool m_IsShaderChanged;
 

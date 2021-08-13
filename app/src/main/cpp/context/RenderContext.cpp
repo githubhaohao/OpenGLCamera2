@@ -8,12 +8,14 @@
 
 #include <GLByteFlowRender.h>
 #include <LogUtil.h>
+#include <ConveyorBeltExample.h>
 #include "RenderContext.h"
 
 jfieldID ByteFlowRenderContext::s_ContextHandle = 0L;
 
 ByteFlowRenderContext::ByteFlowRenderContext(int renderType) :
-		m_pByteFlowRender(NULL)
+		m_pByteFlowRender(nullptr), m_pCurGlFilter(nullptr), m_pBeforeGlFilter(nullptr), m_bIsExampleMode(
+		false)
 {
 	switch (renderType)
 	{
@@ -107,6 +109,15 @@ int ByteFlowRenderContext::Init(int initType)
 
 int ByteFlowRenderContext::UnInit()
 {
+	if(m_pCurGlFilter) {
+		delete m_pCurGlFilter;
+		m_pCurGlFilter = nullptr;
+	}
+
+	if(m_pBeforeGlFilter) {
+		delete m_pBeforeGlFilter;
+		m_pBeforeGlFilter = nullptr;
+	}
 	return m_pByteFlowRender->UnInit();
 }
 
@@ -133,12 +144,24 @@ void ByteFlowRenderContext::UpdateFrame(int format, uint8_t *pBuffer, int width,
 		default:
 			break;
 	}
-	m_pByteFlowRender->UpdateFrame(&nativeImage);
+
+	if(m_bIsExampleMode && m_pCurGlFilter) {
+		m_pCurGlFilter->LoadImage(&nativeImage);
+	} else {
+		m_pByteFlowRender->UpdateFrame(&nativeImage);
+	}
 }
 
 void ByteFlowRenderContext::SetTransformMatrix(float translateX, float translateY, float scaleX, float scaleY, int degree, int mirror)
 {
 	m_pByteFlowRender->SetTransformMatrix(translateX, translateY, scaleX, scaleY, degree, mirror);
+
+	m_TransformMatrix.translateX = translateX;
+	m_TransformMatrix.translateY = translateY;
+	m_TransformMatrix.scaleX = scaleX;
+	m_TransformMatrix.scaleY = scaleY;
+	m_TransformMatrix.degree = degree;
+	m_TransformMatrix.mirror = mirror;
 }
 
 void ByteFlowRenderContext::SetParamsInt(int paramType, int param)
@@ -146,8 +169,12 @@ void ByteFlowRenderContext::SetParamsInt(int paramType, int param)
 	LOGCATE("ByteFlowRenderContext::SetParamsInt paramType = %d, param = %d", paramType, param);
 	switch (paramType)
 	{
-		case PARAM_TYPE_SET_SHADER_INDEX:
-			m_pByteFlowRender->SetShaderIndex(param);
+//		case PARAM_TYPE_SET_SHADER_INDEX:
+//			m_bIsExampleMode = false;
+//			m_pByteFlowRender->SetShaderIndex(param);
+//			break;
+		case PARAM_TYPE_SET_EXAMPLE:
+			CreateExample(param);
 			break;
 		default:
 			break;
@@ -175,12 +202,29 @@ void ByteFlowRenderContext::OnSurfaceCreated()
 
 void ByteFlowRenderContext::OnSurfaceChanged(int width, int height)
 {
+	m_ViewPort = vec2(width, height);
 	m_pByteFlowRender->OnSurfaceChanged(width, height);
 }
 
 void ByteFlowRenderContext::OnDrawFrame()
 {
-	m_pByteFlowRender->OnDrawFrame();
+	if(m_bIsExampleMode) {
+		if(m_pBeforeGlFilter) {
+			m_pBeforeGlFilter->Destroy();
+			delete m_pBeforeGlFilter;
+			m_pBeforeGlFilter = nullptr;
+		}
+
+		if(m_pCurGlFilter) {
+			m_pCurGlFilter->Init();
+			m_pCurGlFilter->SetTransformMatrix(m_TransformMatrix);
+			m_pCurGlFilter->Draw(m_ViewPort.x, m_ViewPort.y);
+		}
+
+	}
+	else {
+		m_pByteFlowRender->OnDrawFrame();
+	}
 }
 
 void ByteFlowRenderContext::LoadLutImageData(int index, int format, int width, int height, uint8_t *pData)
@@ -213,8 +257,38 @@ void ByteFlowRenderContext::LoadLutImageData(int index, int format, int width, i
 void ByteFlowRenderContext::LoadFragShaderScript(int shaderIndex, char *pShaderStr, int strLen)
 {
 	LOGCATE("ByteFlowRenderContext::LoadFragShaderScript shaderIndex = %d, pShaderStr = %s, strLen = %d", shaderIndex, pShaderStr, strLen);
+
+    if(m_bIsExampleMode) {
+        m_bIsExampleMode = false;
+		if(m_pBeforeGlFilter) {
+			m_pBeforeGlFilter->Destroy();
+			delete m_pBeforeGlFilter;
+			m_pBeforeGlFilter = nullptr;
+		}
+
+		if(m_pCurGlFilter) {
+			m_pCurGlFilter->Destroy();
+			delete m_pCurGlFilter;
+			m_pCurGlFilter = nullptr;
+		}
+    }
 	m_pByteFlowRender->LoadFragShaderScript(shaderIndex, pShaderStr, strLen);
 
+}
+
+void ByteFlowRenderContext::CreateExample(int exampleIndex) {
+	LOGCATE("ByteFlowRenderContext:CreateExample exampleIndex=%d", exampleIndex);
+	m_pBeforeGlFilter = m_pCurGlFilter;
+	switch (exampleIndex) {
+		case SAMPLE_TYPE_KEY_CONVEYOR_BELT:
+			m_pCurGlFilter = new ConveyorBeltExample();
+			break;
+		default:
+			m_pCurGlFilter = nullptr;
+			break;
+	}
+
+	if(m_pCurGlFilter != nullptr) m_bIsExampleMode = true;
 }
 
 

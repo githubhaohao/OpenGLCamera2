@@ -70,7 +70,7 @@ GLByteFlowRender::~GLByteFlowRender() {
 }
 
 int GLByteFlowRender::Init(int initType) {
-    LOGCATE("GLByteFlowRender::Init");
+    LOGCATE("GLByteFlowRender::OnSurfaceCreated");
     return 0;
 }
 
@@ -300,8 +300,8 @@ void GLByteFlowRender::OnSurfaceChanged(int width, int height) {
 void GLByteFlowRender::OnDrawFrame() {
     LOGCATE("GLByteFlowRender::OnDrawFrame");
     glViewport(0, 0, m_ViewportWidth, m_ViewportHeight);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDisable(GL_CULL_FACE);
 
     if (!UpdateTextures() || !UseProgram()) {

@@ -13,11 +13,16 @@
 #include <cstdint>
 #include <jni.h>
 #include <ByteFlowRender.h>
+#include <vec2.hpp>
+#include "GLExampleBase.h"
 
 #define GL_RENDER_TYPE   0
 #define CL_RENDER_TYPE   1
 
 #define PARAM_TYPE_SET_SHADER_INDEX   201
+#define PARAM_TYPE_SET_EXAMPLE        202
+
+using namespace glm;
 
 class ByteFlowRenderContext
 {
@@ -57,9 +62,18 @@ public:
 	void OnDrawFrame();
 
 private:
+	void CreateExample(int exampleIndex);
+
 	static jfieldID s_ContextHandle;
 
 	ByteFlowRender *m_pByteFlowRender;
+
+	GLExampleBase  *m_pCurGlFilter;
+	GLExampleBase  *m_pBeforeGlFilter;
+	volatile bool   m_bIsExampleMode;
+
+	vec2            m_ViewPort;
+	TransformMatrix m_TransformMatrix;
 };
 
 

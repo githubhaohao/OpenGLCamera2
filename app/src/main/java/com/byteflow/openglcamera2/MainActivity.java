@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -39,10 +40,14 @@ import com.byteflow.openglcamera2.gesture.MyGestureListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import static android.opengl.GLSurfaceView.RENDERMODE_WHEN_DIRTY;
 import static com.byteflow.openglcamera2.render.ByteFlowRender.IMAGE_FORMAT_I420;
-import static com.byteflow.openglcamera2.render.ByteFlowRender.PARAM_TYPE_SET_SHADER_INDEX;
+import static com.byteflow.openglcamera2.render.ByteFlowRender.PARAM_TYPE_SET_EXAMPLE;
+import static com.byteflow.openglcamera2.render.ByteFlowRender.EXAMPLE_TYPE;
+import static com.byteflow.openglcamera2.render.ByteFlowRender.EXAMPLE_TYPE_KEY_CONVEYOR_BELT;
 
 public class MainActivity extends BaseRenderActivity implements Camera2FrameCallback, MyGestureListener.SimpleGestureListener, View.OnClickListener {
     private static final String TAG = "MainActivity";
@@ -50,10 +55,15 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
             Manifest.permission.CAMERA,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
     };
+    private static final String[] SAMPLE_TITLES = {
+            "抖音传送带",
+    };
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 1;
     private RelativeLayout mSurfaceViewRoot;
     private Camera2Wrapper mCamera2Wrapper;
-    private ImageButton mSwitchCamBtn, mSwitchRatioBtn;
+    private ImageButton mSwitchCamBtn, mSwitchRatioBtn, mSwitchFilterBtn;
+    private int mSampleSelectedIndex = -1;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -176,10 +186,13 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
     private void initViews() {
         mSwitchCamBtn = (ImageButton) findViewById(R.id.switch_camera_btn);
         mSwitchRatioBtn = (ImageButton) findViewById(R.id.switch_ratio_btn);
+        mSwitchFilterBtn = (ImageButton) findViewById(R.id.switch_filter_btn);
         mSwitchCamBtn.bringToFront();
         mSwitchRatioBtn.bringToFront();
+        mSwitchFilterBtn.bringToFront();
         mSwitchCamBtn.setOnClickListener(this);
         mSwitchRatioBtn.setOnClickListener(this);
+        mSwitchFilterBtn.setOnClickListener(this);
 
         mSurfaceViewRoot = (RelativeLayout) findViewById(R.id.surface_root);
         RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
@@ -320,6 +333,63 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
 
     }
 
+    private void showGLSampleDialog() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = LayoutInflater.from(this);
+        final View rootView = inflater.inflate(R.layout.sample_selected_layout, null);
+
+        final AlertDialog dialog = builder.create();
+
+        Button confirmBtn = rootView.findViewById(R.id.confirm_btn);
+        confirmBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mByteFlowRender.setParamsInt(PARAM_TYPE_SET_EXAMPLE, EXAMPLE_TYPE + mSampleSelectedIndex);
+                dialog.cancel();
+            }
+        });
+
+        final RecyclerView resolutionsListView = rootView.findViewById(R.id.resolution_list_view);
+
+        final MyRecyclerViewAdapter myPreviewSizeViewAdapter = new MyRecyclerViewAdapter(this, Arrays.asList(SAMPLE_TITLES));
+        myPreviewSizeViewAdapter.setSelectIndex(mSampleSelectedIndex);
+        myPreviewSizeViewAdapter.addOnItemClickListener(new MyRecyclerViewAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+
+                int selectIndex = myPreviewSizeViewAdapter.getSelectIndex();
+                myPreviewSizeViewAdapter.setSelectIndex(position);
+                myPreviewSizeViewAdapter.notifyItemChanged(selectIndex);
+                myPreviewSizeViewAdapter.notifyItemChanged(position);
+                mSampleSelectedIndex = position;
+                mGLSurfaceView.setRenderMode(RENDERMODE_WHEN_DIRTY);
+                int sampleType = position + EXAMPLE_TYPE;
+
+                mByteFlowRender.setParamsInt(PARAM_TYPE_SET_EXAMPLE, sampleType);
+
+                switch (sampleType) {
+                    case EXAMPLE_TYPE_KEY_CONVEYOR_BELT:
+                        break;
+                    default:
+                        break;
+                }
+
+                dialog.cancel();
+            }
+        });
+
+        LinearLayoutManager manager = new LinearLayoutManager(this);
+        manager.setOrientation(LinearLayoutManager.VERTICAL);
+        resolutionsListView.setLayoutManager(manager);
+
+        resolutionsListView.setAdapter(myPreviewSizeViewAdapter);
+        resolutionsListView.scrollToPosition(mSampleSelectedIndex);
+
+        dialog.show();
+        dialog.getWindow().setContentView(rootView);
+
+    }
+
     @Override
     public void onSwipe(MyGestureListener.SwipeDirection direction) {
         Log.d(TAG, "onSwipe() called with: direction = [" + direction + "]");
@@ -415,6 +485,9 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
                 break;
             case R.id.switch_ratio_btn:
                 showChangeSizeDialog();
+                break;
+            case R.id.switch_filter_btn:
+                showGLSampleDialog();
                 break;
                 default:
         }

@@ -9,6 +9,17 @@
     tools:showIn="@layout/activity_main">
 
     <ImageButton
+        android:id="@+id/switch_filter_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/tool_margin"
+        android:layout_marginEnd="@dimen/fab_margin"
+        app:layout_constraintEnd_toStartOf="@id/switch_camera_btn"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_switch_filter_btn" />
+
+    <ImageButton
         android:id="@+id/switch_camera_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
