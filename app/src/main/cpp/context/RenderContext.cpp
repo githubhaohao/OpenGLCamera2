@@ -9,6 +9,7 @@
 #include <GLByteFlowRender.h>
 #include <LogUtil.h>
 #include <ConveyorBeltExample.h>
+#include <ConveyorBeltExample_1.h>
 #include "RenderContext.h"
 
 jfieldID ByteFlowRenderContext::s_ContextHandle = 0L;
@@ -281,7 +282,7 @@ void ByteFlowRenderContext::CreateExample(int exampleIndex) {
 	m_pBeforeGlFilter = m_pCurGlFilter;
 	switch (exampleIndex) {
 		case SAMPLE_TYPE_KEY_CONVEYOR_BELT:
-			m_pCurGlFilter = new ConveyorBeltExample();
+			m_pCurGlFilter = new ConveyorBeltExample_1();
 			break;
 		default:
 			m_pCurGlFilter = nullptr;
