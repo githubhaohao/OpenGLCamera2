@@ -30,6 +30,7 @@ add_library( # Sets the name of the library.
         src/main/cpp/render/GLUtils.cpp
         src/main/cpp/context/RenderContext.cpp
         src/main/cpp/example/ConveyorBeltExample.cpp
+        src/main/cpp/example/ConveyorBeltExample_1.cpp
         )
 
 # Searches for a specified prebuilt library and stores the path as a
