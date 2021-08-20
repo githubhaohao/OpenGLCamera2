@@ -29,7 +29,6 @@ add_library( # Sets the name of the library.
         src/main/cpp/render/GLByteFlowRender.cpp
         src/main/cpp/render/GLUtils.cpp
         src/main/cpp/context/RenderContext.cpp
-        src/main/cpp/example/ConveyorBeltExample.cpp
         src/main/cpp/example/ConveyorBeltExample_1.cpp
         )
 
