@@ -154,7 +154,7 @@ void ConveyorBeltExample_1::LoadImage(NativeImage *pImage)
             m_SrcImage = m_RenderImage;
             NativeImageUtil::AllocNativeImage(&m_SrcImage);
 
-            m_bannerNum = m_RenderImage.height / 20;
+            m_bannerNum = m_RenderImage.height / 10;
         } else if(m_RenderImage.width != pImage->width || m_RenderImage.height != pImage->height) {
             NativeImageUtil::FreeNativeImage(&m_RenderImage);
             NativeImageUtil::FreeNativeImage(&m_SrcImage);
@@ -167,7 +167,7 @@ void ConveyorBeltExample_1::LoadImage(NativeImage *pImage)
             m_SrcImage = m_RenderImage;
             NativeImageUtil::AllocNativeImage(&m_SrcImage);
 
-            m_bannerNum = m_RenderImage.height / 20;
+            m_bannerNum = m_RenderImage.height / 10;
         }
 
         cv::Mat matRgba = cv::Mat(m_SrcImage.height, m_SrcImage.width, CV_8UC4, m_SrcImage.ppPlane[0]);
