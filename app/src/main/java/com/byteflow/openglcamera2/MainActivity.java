@@ -57,6 +57,7 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
     };
     private static final String[] SAMPLE_TITLES = {
             "抖音传送带",
+            "抖音蓝线挑战",
     };
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 1;
     private RelativeLayout mSurfaceViewRoot;

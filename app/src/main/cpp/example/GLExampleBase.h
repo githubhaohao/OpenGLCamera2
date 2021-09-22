@@ -20,6 +20,7 @@
 
 #define SAMPLE_TYPE                             300
 #define SAMPLE_TYPE_KEY_CONVEYOR_BELT           SAMPLE_TYPE
+#define SAMPLE_TYPE_KEY_BLUE_LINE_CHALLENGE     SAMPLE_TYPE + 1
 
 #define DEFAULT_OGL_ASSETS_DIR "/sdcard/Android/data/com.byteflow.app/files/Download"
 

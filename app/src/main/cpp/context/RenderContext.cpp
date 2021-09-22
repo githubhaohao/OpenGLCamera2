@@ -10,6 +10,7 @@
 #include <LogUtil.h>
 #include <ConveyorBeltExample.h>
 #include <ConveyorBeltExample_1.h>
+#include <BluelineChallengeExample.h>
 #include "RenderContext.h"
 
 jfieldID ByteFlowRenderContext::s_ContextHandle = 0L;
@@ -283,6 +284,9 @@ void ByteFlowRenderContext::CreateExample(int exampleIndex) {
 	switch (exampleIndex) {
 		case SAMPLE_TYPE_KEY_CONVEYOR_BELT:
 			m_pCurGlFilter = new ConveyorBeltExample_1();
+			break;
+		case SAMPLE_TYPE_KEY_BLUE_LINE_CHALLENGE:
+			m_pCurGlFilter = new BluelineChallengeExample();
 			break;
 		default:
 			m_pCurGlFilter = nullptr;

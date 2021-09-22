@@ -14,6 +14,7 @@ public abstract class ByteFlowRender {
 
     public static final int EXAMPLE_TYPE = 300;
     public static final int EXAMPLE_TYPE_KEY_CONVEYOR_BELT = EXAMPLE_TYPE;
+    public static final int EXAMPLE_TYPE_KEY_BLUELINE_CHALLENGE = EXAMPLE_TYPE + 1;
 
     static {
         System.loadLibrary("byteflow_render");
