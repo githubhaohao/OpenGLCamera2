@@ -18,6 +18,10 @@
 ### ![preview](https://github.com/githubhaohao/OpenGLCamera2/blob/master/gif/camera2_previewB.gif)
 ### ![preview](https://github.com/githubhaohao/OpenGLCamera2/blob/master/gif/camera2_previewA.gif)
 
+### ![preview](https://github.com/githubhaohao/OpenGLCamera2/blob/master/gif/gost.gif)
+
+### ![preview](https://github.com/githubhaohao/OpenGLCamera2/blob/master/gif/belt.gif)
+
 ## 相关推荐
 
 - [Android OpenGL ES 3.0 开发从入门到精通系统性学习教程](https://github.com/githubhaohao/NDK_OpenGLES_3_0)
