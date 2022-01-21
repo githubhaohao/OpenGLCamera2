@@ -61,6 +61,7 @@ JNIEXPORT void JNICALL native_UpdateFrame(JNIEnv *env, jobject instance, jint fo
 	if(pContext) pContext->UpdateFrame(format, buf, width, height);
 
 	delete[] buf;
+	env->DeleteLocalRef(bytes);
 }
 
 /*

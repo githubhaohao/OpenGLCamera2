@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,12 +37,12 @@ public class FrameUtil {
             filePath.split("[\\d]+[xX]{1}[\\d]+");
             try {
                 in = new FileInputStream(file);
-                byte[] data=new byte[in.available()];
+                byte[] data = new byte[in.available()];
                 in.read(data);
                 in.close();
-                return new ByteFlowFrame(data, getImageSize(filePath).getWidth(), getImageSize(filePath).getHeight());
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
+                return new ByteFlowFrame(data,
+                        Objects.requireNonNull(getImageSize(filePath)).getWidth(),
+                        Objects.requireNonNull(getImageSize(filePath)).getHeight());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -58,7 +59,7 @@ public class FrameUtil {
             String filePath = getBaseDirPath() + File.separator + stringBuilder.toString();
             File file = new File(filePath);
             try {
-                FileOutputStream outputStream  =new FileOutputStream(file);
+                FileOutputStream outputStream = new FileOutputStream(file);
                 outputStream.write(flowFrame.getData());
                 outputStream.close();
                 return filePath;
@@ -71,11 +72,11 @@ public class FrameUtil {
 
     public static Size getImageSize(String filePath) {
         Pattern pattern = Pattern.compile("[\\d]+[xX]{1}[\\d]+");
-        Matcher matcher =pattern.matcher(filePath);
+        Matcher matcher = pattern.matcher(filePath);
         if (matcher.find()) {
             Log.d(TAG, "getImageSize() called with: filePath = [" + matcher.group() + "]");
             String[] strs = matcher.group().split("[xX]");
-            return new Size(Integer.valueOf(strs[0]), Integer.valueOf(strs[1]));
+            return new Size(Integer.parseInt(strs[0]), Integer.parseInt(strs[1]));
         }
         return null;
     }
