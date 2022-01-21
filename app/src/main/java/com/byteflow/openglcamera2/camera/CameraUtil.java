@@ -11,7 +11,7 @@ public class CameraUtil {
     public static Size getFitInScreenSize(int previewWidth, int previewHeight, int screenWidth,
                                           int screenHeight) {
         Point res = new Point(0, 0);
-        float ratioPreview = previewWidth *1f / previewHeight;
+        float ratioPreview = previewWidth * 1f / previewHeight;
         float ratioScreen = 0.0f;
 
         //landscape
@@ -19,20 +19,20 @@ public class CameraUtil {
             ratioScreen = screenWidth * 1f / screenHeight;
             if (ratioPreview >= ratioScreen) {
                 res.x = screenWidth;
-                res.y = (int)(res.x * previewHeight * 1f / previewWidth);
-            }else {
+                res.y = (int) (res.x * previewHeight * 1f / previewWidth);
+            } else {
                 res.y = screenHeight;
-                res.x = (int)(res.y * previewWidth * 1f / previewHeight);
+                res.x = (int) (res.y * previewWidth * 1f / previewHeight);
             }
-        //portrait
-        }else {
+            //portrait
+        } else {
             ratioScreen = screenHeight * 1f / screenWidth;
             if (ratioPreview >= ratioScreen) {
                 res.y = screenHeight;
-                res.x = (int)(res.y * previewHeight * 1f / previewWidth);
-            }else {
+                res.x = (int) (res.y * previewHeight * 1f / previewWidth);
+            } else {
                 res.x = screenWidth;
-                res.y = (int)(res.x * previewWidth * 1f / previewHeight);
+                res.y = (int) (res.x * previewWidth * 1f / previewHeight);
             }
         }
         return new Size(res.x, res.y);

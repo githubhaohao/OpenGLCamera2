@@ -78,7 +78,7 @@ public abstract class BaseRenderActivity extends AppCompatActivity implements My
     }
 
     public void updateTransformMatrix(String cameraId) {
-        if (Integer.valueOf(cameraId) == CameraCharacteristics.LENS_FACING_FRONT) {
+        if (Integer.parseInt(cameraId) == CameraCharacteristics.LENS_FACING_FRONT) {
             mByteFlowRender.setTransformMatrix(90, 0);
         } else {
             mByteFlowRender.setTransformMatrix(90, 1);
