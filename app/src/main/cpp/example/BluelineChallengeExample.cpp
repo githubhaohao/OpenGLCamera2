@@ -120,12 +120,12 @@ void BluelineChallengeExample::Init()
 
     glBindBuffer(GL_ARRAY_BUFFER, m_VboIds[0]);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (const void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr);
     glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_VboIds[1]);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (const void *)0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), nullptr);
     glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_VboIds[2]);
@@ -223,7 +223,7 @@ void BluelineChallengeExample::Draw(int width, int height)
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_TextureId);
     GLUtils::setInt(m_ProgramObj, "u_texture", 0);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (const void *)0);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
     glBindVertexArray(GL_NONE);
 
     m_frameIndex ++;
