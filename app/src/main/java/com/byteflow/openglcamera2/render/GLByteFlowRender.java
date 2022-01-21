@@ -71,6 +71,7 @@ public class GLByteFlowRender extends ByteFlowRender implements GLSurfaceView.Re
     }
 
     public void loadShaderFromAssetsFile(int shaderIndex, Resources r) {
+        Log.d(TAG,"loadShaderFromAssetsFile shaderIndex = " + shaderIndex);
         String result = null;
         try {
             InputStream in = r.getAssets().open("shaders/fshader_" + shaderIndex + ".glsl");

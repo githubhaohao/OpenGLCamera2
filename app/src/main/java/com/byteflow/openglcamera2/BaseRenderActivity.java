@@ -38,7 +38,7 @@ public abstract class BaseRenderActivity extends AppCompatActivity implements My
     protected GLSurfaceView mGLSurfaceView;
     protected MyGestureListener mGestureDetector;
     //protected int mCurrentShaderIndex = SHADER_NUM - 1;
-    protected int mCurrentShaderIndex = 23;
+    protected int mCurrentShaderIndex = 31;
     protected Size mRootViewSize, mScreenSize;
 
     @Override

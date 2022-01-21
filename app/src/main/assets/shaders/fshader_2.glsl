@@ -6,30 +6,41 @@ uniform lowp sampler2D s_textureY;
 uniform lowp sampler2D s_textureU;
 uniform lowp sampler2D s_textureV;
 uniform vec2 texSize;
+
 vec4 YuvToRgb(vec2 uv) {
-    float y, u, v, r, g, b;
-    y = texture2D(s_textureY, uv).r;
-    u = texture2D(s_textureU, uv).r;
-    v = texture2D(s_textureV, uv).r;
-    u = u - 0.5;
-    v = v - 0.5;
-    r = y + 1.403 * v;
-    g = y - 0.344 * u - 0.714 * v;
-    b = y + 1.770 * u;
-    return vec4(r, g, b, 1.0);
+    //      YUV转RGB
+    //      R = Y + 1.402 * (V - 128)
+    //      G = Y - 0.34414 * (U - 128) - 0.71414 * (V - 128)
+    //      B = Y + 1.772 * (U - 128)
+
+    vec3 yuv;
+    // 只赋值x 则会出现黑白照片效果
+    yuv.x = texture2D(s_textureY, uv).r;
+    // 因为YUV转RGB用的是Y、U-128和V-128，texture函数返回向量值的范围是0-1.0，128表示0.5, 所以要减去0.5
+    yuv.y = texture2D(s_textureU, uv).r - 0.5;
+    yuv.z = texture2D(s_textureV, uv).r - 0.5;
+
+    //  YUV 和 RGB 的转换矩阵
+    highp vec3 rgb =  mat3(
+        1.0, 1.0, 1.0, //第一列
+        0.0, -0.34414, 1.772, //第二列
+        1.403, -0.71414, 0.0//第三列
+    ) * yuv;
+    return vec4(rgb, 1.0);
 }
+
 void main() {
     vec2 pos = v_texcoord.xy;
     vec2 onePixel = vec2(1, 1) / texSize;
     vec4 color = vec4(0);
     mat3 edgeDetectionKernel = mat3(
-    -1, -1, -1,
-    -1, 8, -1,
-    -1, -1, -1
+        -1, -1, -1,
+        -1, 8, -1,
+        -1, -1, -1
     );
-    for(int i = 0; i < 3; i++) {
-        for(int j = 0; j < 3; j++) {
-            vec2 samplePos = pos + vec2(i - 1 , j - 1) * onePixel;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            vec2 samplePos = pos + vec2(i - 1, j - 1) * onePixel;
             vec4 sampleColor = YuvToRgb(samplePos);
             sampleColor *= edgeDetectionKernel[i][j];
             color += sampleColor;

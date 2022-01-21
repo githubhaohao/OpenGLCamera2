@@ -393,31 +393,7 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
             case SWIPE_RIGHT:
                 mCurrentShaderIndex++;
                 mCurrentShaderIndex = mCurrentShaderIndex % SHADER_NUM;
-                switch (mCurrentShaderIndex) {
-                    case LUT_A_SHADER_INDEX:
-                        loadRGBAImage(R.drawable.lut_a, 0);
-                        break;
-                    case LUT_B_SHADER_INDEX:
-                        loadRGBAImage(R.drawable.lut_b, 0);
-                        break;
-                    case LUT_C_SHADER_INDEX:
-                        loadRGBAImage(R.drawable.lut_c, 0);
-                        break;
-                    case LUT_D_SHADER_INDEX:
-                        loadRGBAImage(R.drawable.lut_d, 0);
-                        break;
-                    case ASCII_SHADER_INDEX:
-                        loadRGBAImage(R.drawable.ascii_mapping, ASCII_SHADER_INDEX);
-                        break;
-                    default:
-                }
-
-                if (LUT_A_SHADER_INDEX <= mCurrentShaderIndex && mCurrentShaderIndex <= LUT_D_SHADER_INDEX) {
-                    mByteFlowRender.loadShaderFromAssetsFile(LUT_A_SHADER_INDEX, getResources());
-                } else {
-                    mByteFlowRender.loadShaderFromAssetsFile(mCurrentShaderIndex, getResources());
-                }
-
+                loadShader(mCurrentShaderIndex);
                 //mByteFlowRender.setParamsInt(PARAM_TYPE_SET_SHADER_INDEX, mCurrentShaderIndex);
                 break;
             case SWIPE_LEFT:
@@ -425,37 +401,40 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
                 if (mCurrentShaderIndex < 0) {
                     mCurrentShaderIndex += SHADER_NUM;
                 }
-                switch (mCurrentShaderIndex) {
-                    case LUT_A_SHADER_INDEX:
-                        loadRGBAImage(R.drawable.lut_a, 0);
-                        break;
-                    case LUT_B_SHADER_INDEX:
-                        loadRGBAImage(R.drawable.lut_b, 0);
-                        break;
-                    case LUT_C_SHADER_INDEX:
-                        loadRGBAImage(R.drawable.lut_c, 0);
-                        break;
-                    case LUT_D_SHADER_INDEX:
-                        loadRGBAImage(R.drawable.lut_d, 0);
-                        break;
-                    case ASCII_SHADER_INDEX:
-                        loadRGBAImage(R.drawable.ascii_mapping, ASCII_SHADER_INDEX);
-                        break;
-                    default:
-                }
-
-                if (LUT_A_SHADER_INDEX <= mCurrentShaderIndex && mCurrentShaderIndex <= LUT_D_SHADER_INDEX) {
-                    mByteFlowRender.loadShaderFromAssetsFile(LUT_A_SHADER_INDEX, getResources());
-                } else {
-                    mByteFlowRender.loadShaderFromAssetsFile(mCurrentShaderIndex, getResources());
-                }
-
+                loadShader(mCurrentShaderIndex);
                 //mByteFlowRender.setParamsInt(PARAM_TYPE_SET_SHADER_INDEX, mCurrentShaderIndex);
                 break;
             default:
                 break;
         }
 
+    }
+
+    private void loadShader(int mCurrentShaderIndex) {
+        switch (mCurrentShaderIndex) {
+            case LUT_A_SHADER_INDEX:
+                loadRGBAImage(R.drawable.lut_a, 0);
+                break;
+            case LUT_B_SHADER_INDEX:
+                loadRGBAImage(R.drawable.lut_b, 0);
+                break;
+            case LUT_C_SHADER_INDEX:
+                loadRGBAImage(R.drawable.lut_c, 0);
+                break;
+            case LUT_D_SHADER_INDEX:
+                loadRGBAImage(R.drawable.lut_d, 0);
+                break;
+            case ASCII_SHADER_INDEX:
+                loadRGBAImage(R.drawable.ascii_mapping, ASCII_SHADER_INDEX);
+                break;
+            default:
+        }
+
+        if (LUT_A_SHADER_INDEX <= mCurrentShaderIndex && mCurrentShaderIndex <= LUT_D_SHADER_INDEX) {
+            mByteFlowRender.loadShaderFromAssetsFile(LUT_A_SHADER_INDEX, getResources());
+        } else {
+            mByteFlowRender.loadShaderFromAssetsFile(mCurrentShaderIndex, getResources());
+        }
     }
 
     @Override
