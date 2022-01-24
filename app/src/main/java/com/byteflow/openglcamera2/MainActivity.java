@@ -3,10 +3,7 @@ package com.byteflow.openglcamera2;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -23,7 +19,6 @@ import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -32,6 +27,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.byteflow.openglcamera2.adapter.MyRecyclerViewAdapter;
 import com.byteflow.openglcamera2.camera.Camera2FrameCallback;
 import com.byteflow.openglcamera2.camera.Camera2Wrapper;
 import com.byteflow.openglcamera2.frame.ByteFlowFrame;
@@ -41,7 +37,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import static android.opengl.GLSurfaceView.RENDERMODE_WHEN_DIRTY;
 import static com.byteflow.openglcamera2.render.ByteFlowRender.IMAGE_FORMAT_I420;
@@ -73,12 +68,10 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
                 if (mCamera2Wrapper != null) {
                     mCamera2Wrapper.capture();
                 }
@@ -150,10 +143,10 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
             String cameraId = mCamera2Wrapper.getCameraId();
             String[] cameraIds = mCamera2Wrapper.getSupportCameraIds();
             if (cameraIds != null) {
-                for (int i = 0; i < cameraIds.length; i++) {
-                    if (!cameraIds[i].equals(cameraId)) {
-                        mCamera2Wrapper.updateCameraId(cameraIds[i]);
-                        updateTransformMatrix(cameraIds[i]);
+                for (String s : cameraIds) {
+                    if (!s.equals(cameraId)) {
+                        mCamera2Wrapper.updateCameraId(s);
+                        updateTransformMatrix(s);
                         updateGLSurfaceViewSize(mCamera2Wrapper.getPreviewSize());
                         break;
                     }
@@ -185,9 +178,9 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
     }
 
     private void initViews() {
-        mSwitchCamBtn = (ImageButton) findViewById(R.id.switch_camera_btn);
-        mSwitchRatioBtn = (ImageButton) findViewById(R.id.switch_ratio_btn);
-        mSwitchFilterBtn = (ImageButton) findViewById(R.id.switch_filter_btn);
+        mSwitchCamBtn = findViewById(R.id.switch_camera_btn);
+        mSwitchRatioBtn = findViewById(R.id.switch_ratio_btn);
+        mSwitchFilterBtn = findViewById(R.id.switch_filter_btn);
         mSwitchCamBtn.bringToFront();
         mSwitchRatioBtn.bringToFront();
         mSwitchFilterBtn.bringToFront();
@@ -195,7 +188,7 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
         mSwitchRatioBtn.setOnClickListener(this);
         mSwitchFilterBtn.setOnClickListener(this);
 
-        mSurfaceViewRoot = (RelativeLayout) findViewById(R.id.surface_root);
+        mSurfaceViewRoot = findViewById(R.id.surface_root);
         RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.MATCH_PARENT);
         mSurfaceViewRoot.addView(mGLSurfaceView, p);
@@ -203,12 +196,11 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
         mByteFlowRender.loadShaderFromAssetsFile(mCurrentShaderIndex, getResources());
 
         mCamera2Wrapper = new Camera2Wrapper(this);
-        //mCamera2Wrapper.setDefaultPreviewSize(getScreenSize());
 
         ViewTreeObserver treeObserver = mSurfaceViewRoot.getViewTreeObserver();
         treeObserver.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
-            public boolean  onPreDraw() {
+            public boolean onPreDraw() {
                 mSurfaceViewRoot.getViewTreeObserver().removeOnPreDrawListener(this);
                 mRootViewSize = new Size(mSurfaceViewRoot.getMeasuredWidth(), mSurfaceViewRoot.getMeasuredHeight());
                 updateGLSurfaceViewSize(mCamera2Wrapper.getPreviewSize());
@@ -245,7 +237,6 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
             }
         }
 
-
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = LayoutInflater.from(this);
         final View rootView = inflater.inflate(R.layout.resolution_selected_layout, null);
@@ -273,7 +264,7 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
                 myPreviewSizeViewAdapter.notifyItemChanged(position);
 
                 String[] strs = previewSizeTitles.get(position).split("x");
-                Size updateSize = new Size(Integer.valueOf(strs[0]), Integer.valueOf(strs[1]));
+                Size updateSize = new Size(Integer.parseInt(strs[0]), Integer.parseInt(strs[1]));
                 Log.d(TAG, "onItemClick() called with: strs[0] = [" + strs[0] + "], strs[1] = [" + strs[1] + "]");
                 mCamera2Wrapper.updatePreviewSize(updateSize);
                 updateGLSurfaceViewSize(mCamera2Wrapper.getPreviewSize());
@@ -292,7 +283,7 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
                 myCaptureSizeViewAdapter.notifyItemChanged(position);
 
                 String[] strs = captureSizeTitles.get(position).split("x");
-                Size updateSize = new Size(Integer.valueOf(strs[0]), Integer.valueOf(strs[1]));
+                Size updateSize = new Size(Integer.parseInt(strs[0]), Integer.parseInt(strs[1]));
                 Log.d(TAG, "onItemClick() called with: strs[0] = [" + strs[0] + "], strs[1] = [" + strs[1] + "]");
                 mCamera2Wrapper.updatePictureSize(updateSize);
                 updateGLSurfaceViewSize(mCamera2Wrapper.getPreviewSize());
@@ -368,12 +359,12 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
 
                 mByteFlowRender.setParamsInt(PARAM_TYPE_SET_EXAMPLE, sampleType);
 
-                switch (sampleType) {
-                    case EXAMPLE_TYPE_KEY_CONVEYOR_BELT:
-                        break;
-                    default:
-                        break;
-                }
+//                switch (sampleType) {
+//                    case EXAMPLE_TYPE_KEY_CONVEYOR_BELT:
+//                        break;
+//                    default:
+//                        break;
+//                }
 
                 dialog.cancel();
             }
@@ -402,31 +393,7 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
             case SWIPE_RIGHT:
                 mCurrentShaderIndex++;
                 mCurrentShaderIndex = mCurrentShaderIndex % SHADER_NUM;
-                switch (mCurrentShaderIndex) {
-                    case LUT_A_SHADER_INDEX:
-                        loadRGBAImage(R.drawable.lut_a, 0);
-                        break;
-                    case LUT_B_SHADER_INDEX:
-                        loadRGBAImage(R.drawable.lut_b, 0);
-                        break;
-                    case LUT_C_SHADER_INDEX:
-                        loadRGBAImage(R.drawable.lut_c, 0);
-                        break;
-                    case LUT_D_SHADER_INDEX:
-                        loadRGBAImage(R.drawable.lut_d, 0);
-                        break;
-                    case ASCII_SHADER_INDEX:
-                        loadRGBAImage(R.drawable.ascii_mapping, ASCII_SHADER_INDEX);
-                        break;
-                        default:
-                }
-
-                if (LUT_A_SHADER_INDEX <= mCurrentShaderIndex && mCurrentShaderIndex <= LUT_D_SHADER_INDEX) {
-                    mByteFlowRender.loadShaderFromAssetsFile(LUT_A_SHADER_INDEX, getResources());
-                } else {
-                    mByteFlowRender.loadShaderFromAssetsFile(mCurrentShaderIndex, getResources());
-                }
-
+                loadShader(mCurrentShaderIndex);
                 //mByteFlowRender.setParamsInt(PARAM_TYPE_SET_SHADER_INDEX, mCurrentShaderIndex);
                 break;
             case SWIPE_LEFT:
@@ -434,37 +401,40 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
                 if (mCurrentShaderIndex < 0) {
                     mCurrentShaderIndex += SHADER_NUM;
                 }
-                switch (mCurrentShaderIndex) {
-                    case LUT_A_SHADER_INDEX:
-                        loadRGBAImage(R.drawable.lut_a, 0);
-                        break;
-                    case LUT_B_SHADER_INDEX:
-                        loadRGBAImage(R.drawable.lut_b, 0);
-                        break;
-                    case LUT_C_SHADER_INDEX:
-                        loadRGBAImage(R.drawable.lut_c, 0);
-                        break;
-                    case LUT_D_SHADER_INDEX:
-                        loadRGBAImage(R.drawable.lut_d, 0);
-                        break;
-                    case ASCII_SHADER_INDEX:
-                        loadRGBAImage(R.drawable.ascii_mapping, ASCII_SHADER_INDEX);
-                        break;
-                    default:
-                }
-
-                if (LUT_A_SHADER_INDEX <= mCurrentShaderIndex && mCurrentShaderIndex <= LUT_D_SHADER_INDEX) {
-                    mByteFlowRender.loadShaderFromAssetsFile(LUT_A_SHADER_INDEX, getResources());
-                } else {
-                    mByteFlowRender.loadShaderFromAssetsFile(mCurrentShaderIndex, getResources());
-                }
-
+                loadShader(mCurrentShaderIndex);
                 //mByteFlowRender.setParamsInt(PARAM_TYPE_SET_SHADER_INDEX, mCurrentShaderIndex);
                 break;
             default:
                 break;
         }
 
+    }
+
+    private void loadShader(int mCurrentShaderIndex) {
+        switch (mCurrentShaderIndex) {
+            case LUT_A_SHADER_INDEX:
+                loadRGBAImage(R.drawable.lut_a, 0);
+                break;
+            case LUT_B_SHADER_INDEX:
+                loadRGBAImage(R.drawable.lut_b, 0);
+                break;
+            case LUT_C_SHADER_INDEX:
+                loadRGBAImage(R.drawable.lut_c, 0);
+                break;
+            case LUT_D_SHADER_INDEX:
+                loadRGBAImage(R.drawable.lut_d, 0);
+                break;
+            case ASCII_SHADER_INDEX:
+                loadRGBAImage(R.drawable.ascii_mapping, ASCII_SHADER_INDEX);
+                break;
+            default:
+        }
+
+        if (LUT_A_SHADER_INDEX <= mCurrentShaderIndex && mCurrentShaderIndex <= LUT_D_SHADER_INDEX) {
+            mByteFlowRender.loadShaderFromAssetsFile(LUT_A_SHADER_INDEX, getResources());
+        } else {
+            mByteFlowRender.loadShaderFromAssetsFile(mCurrentShaderIndex, getResources());
+        }
     }
 
     @Override
@@ -474,10 +444,10 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
                 String cameraId = mCamera2Wrapper.getCameraId();
                 String[] cameraIds = mCamera2Wrapper.getSupportCameraIds();
                 if (cameraIds != null) {
-                    for (int i = 0; i < cameraIds.length; i++) {
-                        if (!cameraIds[i].equals(cameraId)) {
-                            mCamera2Wrapper.updateCameraId(cameraIds[i]);
-                            updateTransformMatrix(cameraIds[i]);
+                    for (String id : cameraIds) {
+                        if (!id.equals(cameraId)) {
+                            mCamera2Wrapper.updateCameraId(id);
+                            updateTransformMatrix(id);
                             updateGLSurfaceViewSize(mCamera2Wrapper.getPreviewSize());
                             break;
                         }
@@ -490,81 +460,7 @@ public class MainActivity extends BaseRenderActivity implements Camera2FrameCall
             case R.id.switch_filter_btn:
                 showGLSampleDialog();
                 break;
-                default:
-        }
-    }
-
-    public static class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.MyViewHolder> implements View.OnClickListener {
-        private List<String> mTitles;
-        private Context mContext;
-        private int mSelectIndex = 0;
-        private OnItemClickListener mOnItemClickListener = null;
-
-        public MyRecyclerViewAdapter(Context context, List<String> titles) {
-            mContext = context;
-            mTitles = titles;
-        }
-
-        public void setSelectIndex(int index) {
-            mSelectIndex = index;
-        }
-
-        public int getSelectIndex() {
-            return mSelectIndex;
-        }
-
-        public void addOnItemClickListener(OnItemClickListener onItemClickListener) {
-            mOnItemClickListener = onItemClickListener;
-        }
-
-        @NonNull
-        @Override
-        public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.resolution_item_layout, parent, false);
-            MyViewHolder myViewHolder = new MyViewHolder(view);
-            view.setOnClickListener(this);
-            return myViewHolder;
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-            holder.mTitle.setText(mTitles.get(position));
-            if (position == mSelectIndex) {
-                holder.mRadioButton.setChecked(true);
-                holder.mTitle.setTextColor(mContext.getResources().getColor(R.color.colorAccent));
-            } else {
-                holder.mRadioButton.setChecked(false);
-                holder.mTitle.setText(mTitles.get(position));
-                holder.mTitle.setTextColor(Color.GRAY);
-            }
-            holder.itemView.setTag(position);
-        }
-
-        @Override
-        public int getItemCount() {
-            return mTitles.size();
-        }
-
-        @Override
-        public void onClick(View v) {
-            if (mOnItemClickListener != null) {
-                mOnItemClickListener.onItemClick(v, (Integer) v.getTag());
-            }
-        }
-
-        public interface OnItemClickListener {
-            void onItemClick(View view, int position);
-        }
-
-        class MyViewHolder extends RecyclerView.ViewHolder {
-            RadioButton mRadioButton;
-            TextView mTitle;
-
-            public MyViewHolder(View itemView) {
-                super(itemView);
-                mRadioButton = itemView.findViewById(R.id.radio_btn);
-                mTitle = itemView.findViewById(R.id.item_title);
-            }
+            default:
         }
     }
 }

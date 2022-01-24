@@ -62,7 +62,6 @@ GLByteFlowRender::GLByteFlowRender() :
     m_IsUpdateExtTexture = false;
     m_pFragShaderBuf = nullptr;
     memset(&m_ExtRgbaImage, 0, sizeof(NativeImage));
-
 }
 
 GLByteFlowRender::~GLByteFlowRender() {
@@ -94,7 +93,7 @@ void GLByteFlowRender::UpdateFrame(NativeImage *pImage) {
     LOGCATE("GLByteFlowRender::UpdateFrame");
     if (pImage == nullptr) return;
     if (pImage->width != m_RenderFrame.width || pImage->height != m_RenderFrame.height) {
-        if (m_RenderFrame.ppPlane[0] != NULL) {
+        if (m_RenderFrame.ppPlane[0] != nullptr) {
             NativeImageUtil::FreeNativeImage(&m_RenderFrame);
         }
         memset(&m_RenderFrame, 0, sizeof(NativeImage));
@@ -116,7 +115,6 @@ GLByteFlowRender::SetTransformMatrix(float translateX, float translateY, float s
     m_TransformMatrix.degree = degree;
     m_TransformMatrix.mirror = mirror;
     m_IsProgramChanged = true;
-
 }
 
 void GLByteFlowRender::SetShaderIndex(int shaderIndex) {
@@ -133,8 +131,8 @@ int GLByteFlowRender::GetShaderIndex() {
 
 bool GLByteFlowRender::CreateTextures() {
     LOGCATE("GLByteFlowRender::CreateTextures");
-    GLsizei yWidth = static_cast<GLsizei>(m_RenderFrame.width);
-    GLsizei yHeight = static_cast<GLsizei>(m_RenderFrame.height);
+    auto yWidth = m_RenderFrame.width;
+    auto yHeight = m_RenderFrame.height;
 
     glActiveTexture(GL_TEXTURE0);
     glGenTextures(1, &m_YTextureId);
@@ -144,15 +142,15 @@ bool GLByteFlowRender::CreateTextures() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, yWidth, yHeight, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE,
-                 NULL);
+                 nullptr);
 
     if (!m_YTextureId) {
         GLUtils::CheckGLError("GLByteFlowRender::CreateTextures Create Y texture");
         return false;
     }
 
-    GLsizei uWidth = static_cast<GLsizei>(m_RenderFrame.width / 2);
-    GLsizei uHeight = yHeight / 2;
+    auto uWidth = m_RenderFrame.width / 2;
+    auto uHeight = yHeight / 2;
 
     glActiveTexture(GL_TEXTURE1);
     glGenTextures(1, &m_UTextureId);
@@ -162,15 +160,15 @@ bool GLByteFlowRender::CreateTextures() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, uWidth, uHeight, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE,
-                 NULL);
+                 nullptr);
 
     if (!m_UTextureId) {
         GLUtils::CheckGLError("GLByteFlowRender::CreateTextures Create U texture");
         return false;
     }
 
-    GLsizei vWidth = static_cast<GLsizei>(m_RenderFrame.width / 2);
-    GLsizei vHeight = (GLsizei) yHeight / 2;
+    auto vWidth = m_RenderFrame.width / 2;
+    auto vHeight =  yHeight / 2;
 
     glActiveTexture(GL_TEXTURE2);
     glGenTextures(1, &m_VTextureId);
@@ -180,19 +178,18 @@ bool GLByteFlowRender::CreateTextures() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, vWidth, vHeight, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE,
-                 NULL);
+                 nullptr);
 
     if (!m_VTextureId) {
         GLUtils::CheckGLError("GLByteFlowRender::CreateTextures Create V texture");
         return false;
     }
-
     return true;
 }
 
 bool GLByteFlowRender::UpdateTextures() {
     LOGCATE("GLByteFlowRender::UpdateTextures");
-    if (m_RenderFrame.ppPlane[0] == NULL) {
+    if (m_RenderFrame.ppPlane[0] == nullptr) {
         return false;
     }
 
@@ -510,9 +507,10 @@ void GLByteFlowRender::SetShaderProgramDynamicAttrib(int shaderIndex) {
                 glUniform1f(m_OffsetHandle, offset);
             }
             GLUtils::setInt(m_Program, "s_textureMapping", 3);
-            GLUtils::setVec2(m_Program, "asciiTexSize", m_ExtRgbaImage.width, m_ExtRgbaImage.height);
+            GLUtils::setVec2(m_Program, "asciiTexSize", m_ExtRgbaImage.width,
+                             m_ExtRgbaImage.height);
         }
-        break;
+            break;
         case ASCII_SHADER_MATTE_BLUR: {
             GLUtils::setFloat(m_Program, "blurSamplerScale", 4.0);
             GLUtils::setFloat(m_Program, "factor", 0.1);

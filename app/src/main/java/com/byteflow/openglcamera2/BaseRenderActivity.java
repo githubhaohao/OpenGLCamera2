@@ -38,7 +38,7 @@ public abstract class BaseRenderActivity extends AppCompatActivity implements My
     protected GLSurfaceView mGLSurfaceView;
     protected MyGestureListener mGestureDetector;
     //protected int mCurrentShaderIndex = SHADER_NUM - 1;
-    protected int mCurrentShaderIndex = 23;
+    protected int mCurrentShaderIndex = 31;
     protected Size mRootViewSize, mScreenSize;
 
     @Override
@@ -78,7 +78,7 @@ public abstract class BaseRenderActivity extends AppCompatActivity implements My
     }
 
     public void updateTransformMatrix(String cameraId) {
-        if (Integer.valueOf(cameraId) == CameraCharacteristics.LENS_FACING_FRONT) {
+        if (Integer.parseInt(cameraId) == CameraCharacteristics.LENS_FACING_FRONT) {
             mByteFlowRender.setTransformMatrix(90, 0);
         } else {
             mByteFlowRender.setTransformMatrix(90, 1);

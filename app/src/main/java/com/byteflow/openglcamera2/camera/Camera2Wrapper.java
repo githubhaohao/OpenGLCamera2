@@ -27,6 +27,7 @@ import androidx.core.content.ContextCompat;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -35,8 +36,8 @@ public class Camera2Wrapper {
     private static final int DEFAULT_CAMERA_ID = 0;
     private final float THRESHOLD = 0.001f;
 
-    private Camera2FrameCallback mCamera2FrameCallback;
-    private Context mContext;
+    private final Camera2FrameCallback mCamera2FrameCallback;
+    private final Context mContext;
     private CameraManager mCameraManager;
 
     private CameraCaptureSession mCameraCaptureSession;
@@ -47,7 +48,7 @@ public class Camera2Wrapper {
     private ImageReader mPreviewImageReader, mCaptureImageReader;
     private Integer mSensorOrientation;
 
-    private Semaphore mCameraLock = new Semaphore(1);
+    private final Semaphore mCameraLock = new Semaphore(1);
     private Size mDefaultPreviewSize = new Size(1280, 720);
     private Size mDefaultCaptureSize = new Size(1280, 720);
 
@@ -59,7 +60,7 @@ public class Camera2Wrapper {
     private Handler mBackgroundHandler;
     private HandlerThread mBackgroundThread;
 
-    private ImageReader.OnImageAvailableListener mOnPreviewImageAvailableListener = new ImageReader.OnImageAvailableListener() {
+    private final ImageReader.OnImageAvailableListener mOnPreviewImageAvailableListener = new ImageReader.OnImageAvailableListener() {
         @Override
         public void onImageAvailable(ImageReader reader) {
             Image image = reader.acquireLatestImage();
@@ -72,7 +73,7 @@ public class Camera2Wrapper {
         }
     };
 
-    private ImageReader.OnImageAvailableListener mOnCaptureImageAvailableListener = new ImageReader.OnImageAvailableListener() {
+    private final ImageReader.OnImageAvailableListener mOnCaptureImageAvailableListener = new ImageReader.OnImageAvailableListener() {
         @Override
         public void onImageAvailable(ImageReader reader) {
             Image image = reader.acquireLatestImage();
@@ -101,8 +102,7 @@ public class Camera2Wrapper {
         mCameraManager = (CameraManager) mContext.getSystemService(Context.CAMERA_SERVICE);
         try {
             mSupportCameraIds = mCameraManager.getCameraIdList();
-            if (checkCameraIdSupport(String.valueOf(DEFAULT_CAMERA_ID))) {
-            } else {
+            if (!checkCameraIdSupport(String.valueOf(DEFAULT_CAMERA_ID))) {
                 throw new AndroidRuntimeException("Don't support the camera id: " + DEFAULT_CAMERA_ID);
             }
             mCameraId = String.valueOf(DEFAULT_CAMERA_ID);
@@ -120,7 +120,9 @@ public class Camera2Wrapper {
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
-
+        if(characteristics == null){
+            return;
+        }
         StreamConfigurationMap streamConfigs = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
         if (streamConfigs != null) {
             mSupportPreviewSize = Arrays.asList(streamConfigs.getOutputSizes(SurfaceTexture.class));
@@ -145,7 +147,7 @@ public class Camera2Wrapper {
 
             if (supportDefaultSize) {
                 mPreviewSize = mDefaultPreviewSize;
-            } else if(sameRatioSize != null) {
+            } else if (sameRatioSize != null) {
                 mPreviewSize = sameRatioSize;
             }
 
@@ -168,7 +170,7 @@ public class Camera2Wrapper {
             }
             if (supportDefaultSize) {
                 mPictureSize = mDefaultCaptureSize;
-            }  else if(sameRatioSize != null) {
+            } else if (sameRatioSize != null) {
                 mPictureSize = sameRatioSize;
             }
         }
@@ -179,9 +181,10 @@ public class Camera2Wrapper {
 
     private boolean checkCameraIdSupport(String cameraId) {
         boolean isSupported = false;
-        for (String id: mSupportCameraIds) {
+        for (String id : mSupportCameraIds) {
             if (cameraId.equals(id)) {
                 isSupported = true;
+                break;
             }
         }
         return isSupported;
@@ -338,7 +341,8 @@ public class Camera2Wrapper {
 
     private void createCaptureSession() {
         try {
-            if (null == mCameraDevice || null == mPreviewSurface || null == mCaptureImageReader) return;
+            if (null == mCameraDevice || null == mPreviewSurface || null == mCaptureImageReader)
+                return;
             mCameraDevice.createCaptureSession(Arrays.asList(mPreviewSurface, mCaptureImageReader.getSurface()),
                     mSessionStateCallback, mBackgroundHandler);
 
@@ -347,7 +351,7 @@ public class Camera2Wrapper {
         }
     }
 
-    private CameraCaptureSession.StateCallback mSessionStateCallback = new CameraCaptureSession.StateCallback() {
+    private final CameraCaptureSession.StateCallback mSessionStateCallback = new CameraCaptureSession.StateCallback() {
         @Override
         public void onConfigured(@NonNull CameraCaptureSession session) {
             mCameraCaptureSession = session;
@@ -376,7 +380,7 @@ public class Camera2Wrapper {
             builder.addTarget(mPreviewSurface);
             return builder.build();
         } catch (CameraAccessException e) {
-            Log.e(TAG, e.getMessage());
+            Log.e(TAG, Objects.requireNonNull(e.getMessage()));
             return null;
         }
     }

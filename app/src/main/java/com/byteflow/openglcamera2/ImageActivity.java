@@ -37,7 +37,7 @@ public class ImageActivity extends BaseRenderActivity implements GLByteFlowRende
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_image);
 
-        mSurfaceViewRoot = (RelativeLayout) findViewById(R.id.surface_root);
+        mSurfaceViewRoot = findViewById(R.id.surface_root);
 
         RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.MATCH_PARENT);
@@ -158,7 +158,7 @@ public class ImageActivity extends BaseRenderActivity implements GLByteFlowRende
         }
     }
 
-    public static final File getResultImgFile(final String ext) {
+    public static File getResultImgFile(final String ext) {
         final File dir = new File(Environment.getExternalStorageDirectory(), RESULT_IMG_DIR);
         Log.d(TAG, "path=" + dir.toString());
         dir.mkdirs();
@@ -168,7 +168,7 @@ public class ImageActivity extends BaseRenderActivity implements GLByteFlowRende
         return null;
     }
 
-    private static final String getDateTimeString() {
+    private static String getDateTimeString() {
         final GregorianCalendar now = new GregorianCalendar();
         return DateTime_FORMAT.format(now.getTime());
     }

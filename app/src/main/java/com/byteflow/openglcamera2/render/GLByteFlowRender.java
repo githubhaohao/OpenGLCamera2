@@ -15,6 +15,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -70,6 +71,7 @@ public class GLByteFlowRender extends ByteFlowRender implements GLSurfaceView.Re
     }
 
     public void loadShaderFromAssetsFile(int shaderIndex, Resources r) {
+        Log.d(TAG,"loadShaderFromAssetsFile shaderIndex = " + shaderIndex);
         String result = null;
         try {
             InputStream in = r.getAssets().open("shaders/fshader_" + shaderIndex + ".glsl");
@@ -78,10 +80,9 @@ public class GLByteFlowRender extends ByteFlowRender implements GLSurfaceView.Re
             while ((ch = in.read()) != -1) {
                 baos.write(ch);
             }
-            byte[] buff = baos.toByteArray();
             baos.close();
             in.close();
-            result = new String(buff, "UTF-8");
+            result = baos.toString("UTF-8");
             result = result.replaceAll("\\r\\n", "\n");
         } catch (Exception e) {
             e.printStackTrace();
@@ -134,8 +135,7 @@ public class GLByteFlowRender extends ByteFlowRender implements GLSurfaceView.Re
         Matrix matrix = new Matrix();
         matrix.setRotate(180);
         matrix.postScale(-1, 1);
-        Bitmap newBM = Bitmap.createBitmap(bitmap, 0, 0, w, h, matrix, false);
-        return newBM;
+        return Bitmap.createBitmap(bitmap, 0, 0, w, h, matrix, false);
     }
 
     public void readPixels(Size size, String imagePath)
@@ -159,8 +159,6 @@ public class GLByteFlowRender extends ByteFlowRender implements GLSurfaceView.Re
                 if(mCallback != null) mCallback.onReadPixelsSaveToLocal(file.getAbsolutePath());
             }
             bitmap.recycle();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }

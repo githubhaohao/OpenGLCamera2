@@ -41,7 +41,7 @@ public:
 
 	virtual void SetTransformMatrix(TransformMatrix &transformMatrix);
 
-	void UpdateMVPMatrix(glm::mat4 &mat4Matrix, TransformMatrix &transformMatrix);
+	static void UpdateMVPMatrix(glm::mat4 &mat4Matrix, TransformMatrix &transformMatrix);
 
 private:
 	GLuint m_TextureId;

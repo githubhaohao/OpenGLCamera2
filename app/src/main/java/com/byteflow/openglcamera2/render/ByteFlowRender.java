@@ -10,7 +10,7 @@ public abstract class ByteFlowRender {
     public static final int IMAGE_FORMAT_I420 = 0x04;
 
     public static final int PARAM_TYPE_SET_SHADER_INDEX = 201;
-    public static final int PARAM_TYPE_SET_EXAMPLE      = 202;
+    public static final int PARAM_TYPE_SET_EXAMPLE = 202;
 
     public static final int EXAMPLE_TYPE = 300;
     public static final int EXAMPLE_TYPE_KEY_CONVEYOR_BELT = EXAMPLE_TYPE;
