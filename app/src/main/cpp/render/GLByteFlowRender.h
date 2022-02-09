@@ -31,8 +31,9 @@
 #define GHOST_SHADER_INDEX            26
 
 #define ASCII_SHADER_INDEX            29
-#define ASCII_SHADER_MATTE_BLUR       30
-#define ASCII_SHADER_POLAR_MOSAIC     31
+#define MATTE_BLUR_SHADER_INDEX       30
+#define POLAR_MOSAIC_SHADER_INDEX     31
+#define FIREWORKS_SHADER_INDEX        32
 
 #define MAX_FRAME_NUM  30
 #define SKIP_FRAME_NUM 5

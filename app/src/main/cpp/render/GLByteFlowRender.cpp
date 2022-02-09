@@ -513,15 +513,20 @@ void GLByteFlowRender::SetShaderProgramDynamicAttrib(int shaderIndex) {
             GLUtils::setVec2(m_Program, "asciiTexSize", m_ExtRgbaImage.width, m_ExtRgbaImage.height);
         }
         break;
-        case ASCII_SHADER_MATTE_BLUR: {
+        case MATTE_BLUR_SHADER_INDEX: {
             GLUtils::setFloat(m_Program, "blurSamplerScale", 4.0);
             GLUtils::setFloat(m_Program, "factor", 0.1);
             GLUtils::setInt(m_Program, "samplerRadius", 2);
         }
             break;
-        case ASCII_SHADER_POLAR_MOSAIC: {
+        case POLAR_MOSAIC_SHADER_INDEX: {
             GLUtils::setVec2(m_Program, "center", 0.5f, 0.5f);
             GLUtils::setVec2(m_Program, "pixelSize", 0.05f, 0.05f);
+        }
+            break;
+        case FIREWORKS_SHADER_INDEX: {
+            glUniform1f(m_OffsetHandle, m_FrameIndex);
+            GLUtils::setInt(m_Program, "front", m_TransformMatrix.mirror);
         }
             break;
         default:
@@ -538,7 +543,7 @@ void GLByteFlowRender::SetShaderProgramDynamicAttrib(int shaderIndex) {
     }
 
     if (m_TimeHandle >= 0) {
-        glUniform1f(m_TimeHandle, m_FrameIndex / 10);
+        glUniform1f(m_TimeHandle, m_FrameIndex / 10.0f);
     }
 
 }
