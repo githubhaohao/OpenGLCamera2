@@ -5,7 +5,7 @@
 
 ## Android OpenGL Camera 2.0 
 
-项目**使用 OpenGL ES 3.0 实现 30 种相机滤镜和特效**，支持相机预览和拍照，左右滑动切换滤镜。
+项目**使用 OpenGL ES 3.0 实现 30+ 种相机滤镜和特效**，支持相机预览和拍照，左右滑动切换滤镜。
 
 对 OpenGL ES 3.0 不熟悉的同学可以移步 [Android OpenGLES 3.0 开发系统性学习教程。](https://github.com/githubhaohao/NDK_OpenGLES_3_0)
 
@@ -14,6 +14,7 @@
 项目编译环境: Android Studio 4.1+ , NDK r21
 
 ## 滤镜展示
+### ![preview](https://github.com/githubhaohao/OpenGLCamera2/blob/master/gif/%E2%80%8Ffireworks.gif)
 ### ![preview](https://github.com/githubhaohao/OpenGLCamera2/blob/master/gif/camera2_previewC.gif)
 ### ![preview](https://github.com/githubhaohao/OpenGLCamera2/blob/master/gif/camera2_previewB.gif)
 ### ![preview](https://github.com/githubhaohao/OpenGLCamera2/blob/master/gif/camera2_previewA.gif)
