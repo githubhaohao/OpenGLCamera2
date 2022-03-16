@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Camera2Wrapper {
     private static final String TAG = "Camera2Wrapper";
-    private static final int DEFAULT_CAMERA_ID = 0;
+    private static final int DEFAULT_CAMERA_ID = 1;
     private final float THRESHOLD = 0.001f;
 
     private Camera2FrameCallback mCamera2FrameCallback;

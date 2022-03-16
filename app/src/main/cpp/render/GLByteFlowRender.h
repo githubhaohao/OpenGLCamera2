@@ -34,6 +34,7 @@
 #define MATTE_BLUR_SHADER_INDEX       30
 #define POLAR_MOSAIC_SHADER_INDEX     31
 #define FIREWORKS_SHADER_INDEX        32
+#define SHAKE_SHADER_INDEX            33
 
 #define MAX_FRAME_NUM  30
 #define SKIP_FRAME_NUM 5

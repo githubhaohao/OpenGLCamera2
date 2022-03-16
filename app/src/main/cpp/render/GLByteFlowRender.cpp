@@ -529,6 +529,12 @@ void GLByteFlowRender::SetShaderProgramDynamicAttrib(int shaderIndex) {
             GLUtils::setInt(m_Program, "front", m_TransformMatrix.mirror);
         }
             break;
+        case SHAKE_SHADER_INDEX: {
+            if (m_OffsetHandle >= 0) {
+                glUniform1f(m_OffsetHandle, m_FrameIndex);
+            }
+        }
+            break;
         default:
             break;
     }
