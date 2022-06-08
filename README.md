@@ -13,6 +13,10 @@
 
 项目编译环境: Android Studio 4.1+ , NDK r21
 
+## 作者声明
+
+有读者反馈，最近有培训机构将本教程进行打包售卖，严重违背了本项目免费开源的初衷。再次声明：**任何商业机构或个人未经作者【微信号：Byte-Flow 】许可，不得将本教程及其项目配套代码用于 "打包贩卖、出书和卖课" 等商业用途，一经发现，全网声讨。再次感谢各位读者的监督和反馈。**
+
 ## 滤镜展示
 ### ![preview](https://github.com/githubhaohao/OpenGLCamera2/blob/master/gif/%E2%80%8Ffireworks.gif)
 ### ![preview](https://github.com/githubhaohao/OpenGLCamera2/blob/master/gif/camera2_previewC.gif)
