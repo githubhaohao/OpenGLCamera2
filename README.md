@@ -36,3 +36,8 @@
 有疑问或技术交流可以添加**我的微信：Byte-Flow , 领取视频教程，拉你入相关技术交流群**，里面很多牛人帮你解答。
 
 ![字节流动](https://github.com/githubhaohao/NDK_OpenGLES_3_0/blob/master/doc/img/accountID.jpg)
+
+## 付费社群
+项目疑难问题解答、大厂内部推荐、面试指导、简历指导、代码指导、offer 选择建议、学习路线规划。
+
+![知识星球](https://github.com/githubhaohao/NDK_OpenGLES_3_0/blob/master/doc/img/zsxq.jpeg?raw=true)
